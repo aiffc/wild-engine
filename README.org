@@ -15,19 +15,20 @@
 
 *** run with debug
 #+BEGIN_SRC lisp
-(%we.dbg:dbg-trace :app :vk)
+(%we.dbg:dbg-trace :app :vk :app-high)
 (win-test)
 #+END_SRC
 
 * change log 
 -----------------------------------------------------------------------------------------
-<2022-05-08 日>
+<2022-05-08>
 #+BEGIN_SRC 
-start project, initialize instance and windows
+initialize project
+add clear window demo.
 #+END_SRC
 
 ** TODO todo 
 #+BEGIN_SRC 
-other vulkan handle initialize
+pipeline support
 #+END_SRC
 -----------------------------------------------------------------------------------------

@@ -29,6 +29,7 @@
 			       ;; ./src/core/vk
 			       (:module "vk"
 				:components ((:file "utils")
+					     (:file "depth-buffer")
 					     (:file "instance")
 					     (:file "gpu")
 					     (:file "surface")
@@ -38,8 +39,7 @@
 					     (:file "framebuffer")
 					     (:file "cmd-pool")
 					     (:file "cmds")
-					     (:file "signal"))
-					)
+					     (:file "signal")))
 			       ;; ./src/core/app
 			       (:module "app"
 				:components ((:file "app")))))

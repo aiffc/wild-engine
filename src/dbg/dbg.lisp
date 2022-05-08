@@ -1,5 +1,8 @@
 (in-package #:%wild-engine.debug)
 
+;; support debug arg
+;; :vk :app :app-high
+
 (defparameter *trace-layer* nil)
 
 (defun msg (layer str &rest args)

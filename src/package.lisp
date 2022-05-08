@@ -28,15 +28,45 @@
    #:vk.instance
    #:instance
    #:instance-reporter
-   #:vk.gpu
    #:vk.surface
+   #:surface
+   #:vk.gpu
+   #:gpu
+   #:gpu-capabilities
+   #:gpu-formats
+   #:gpu-present-mode
+   #:gpu-features
+   #:gpu-properties
+   #:gpu-queue-families
+   #:gpu-memory-infos
    #:vk.device
+   #:device
+   #:device-gqueue-family-index
+   #:device-cqueue-family-index
+   #:device-tqueue-family-index
+   #:device-pqueue-family-index
+   #:device-gqueues
+   #:device-cqueues
+   #:device-tqueues
+   #:device-pqueues
    #:vk.swapchain
+   #:swapchain
+   #:swapchain-format
+   #:swapchain-images
+   #:swapchain-image-views
    #:vk.render-pass
+   #:render-pass
    #:vk.framebuffer
+   #:framebuffer
    #:vk.cmd-pool
+   #:cmd-pool-graphics
+   #:cmd-pool-compute
    #:vk.cmds
+   #:cmds-graphics
+   #:cmds-compute
    #:vk.signal
+   #:signal-image-available
+   #:signal-render-finish
    #:app
    #:make-app
    #:destroy-app
@@ -55,7 +85,9 @@
   (:nicknames #:%we.vk)
   (:local-nicknames
    (:%wild-engine.debug #:%we.dbg)
-   (:%wile-engine.core.utils #:%we.utils)))
+   (:%wile-engine.core.utils #:%we.utils))
+  (:export
+   #:with-gcmd))
 
 (defpackage :%wile-engine.core.app
   (:use #:cl)
@@ -67,9 +99,12 @@
 (defpackage :wild-engine.api
   (:use #:cl)
   (:nicknames #:we.api)
+  (:local-nicknames
+   (:%wile-engine.core.vulkan #:%we.vk))
   (:export
    #:with-app
    #:defkey-down
    #:defkey-up
    #:defmouse
-   #:with-main-loop))
+   #:with-main-loop
+   #:with-render))

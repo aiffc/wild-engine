@@ -1,5 +1,7 @@
 (in-package :we.win-test)
 
+(%we.dbg:dbg-trace :app :app-high)
+
 (defun win-test (&key
 		   (x :centered)
 		   (y :centered)
@@ -11,4 +13,5 @@
 			:win-y y
 			:win-w w
 			:win-h h)
-    (we.api:with-main-loop ())))
+    (we.api:with-main-loop ()
+      (we.api:with-render (app cmd :clear-color #(1.0 0.0 0.0 1.0))))))

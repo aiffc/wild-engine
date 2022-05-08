@@ -49,3 +49,12 @@
      		     (funcall ,mousemotion x y xrel yrel state)))
      (:idle () (progn ,@body))
      (:quit () t)))
+
+(defmacro with-render ((app cmd &key
+				  (x 0)
+				  (y 0)
+				  (width 600)
+				  (height 600)
+				  (clear-color #(1.0 1.0 1.0 1.0))) &body body)
+  `(%we.vk:with-gcmd (,app ,cmd ,x ,y ,width ,height ,clear-color)
+     ,@body))

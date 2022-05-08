@@ -59,3 +59,14 @@
 	  (t (%we.dbg:msg :vk "unknow error~a ~a ~a~%" fn handle result)))
     (values handle result)))
 
+(defun find-memory (type properties mem-info)
+  "function used to find memory by memory info and gpu properties"
+  (let ((memory-types (vk:memory-types mem-info)))
+    (loop :for i :from 0 :below (vk:memory-type-count mem-info)
+	  :for shift := (ash 1 i)
+	  :for mem-p := (vk:property-flags (nth i memory-types))
+	  :do
+	     (%we.dbg:msg :app "~a ~a ~a~%" i shift mem-p)
+	  :when (and (not (zerop (logand type shift)))
+		     (or (find properties mem-p :test #'eql) (equal properties mem-p)))
+	    :return i)))

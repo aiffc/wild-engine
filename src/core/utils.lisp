@@ -36,7 +36,15 @@
   (:documentation
    "store the instance and debug reporter handle for vulkan"))
 
-(defclass vk.gpu (vk.instance)
+(defclass vk.surface (vk.instance)
+  ((surface
+    :initarg :surface
+    :initform nil
+    :accessor surface))
+  (:documentation
+   "used to store surface handle"))
+
+(defclass vk.gpu (vk.surface)
   ((gpu
     :initarg :gpu
     :initform nil
@@ -72,15 +80,7 @@
   (:documentation
    "used to store gpu info"))
 
-(defclass vk.surface (vk.gpu)
-  ((surface
-    :initarg :surface
-    :initform nil
-    :accessor surface))
-  (:documentation
-   "used to store surface handle"))
-
-(defclass vk.device (vk.surface)
+(defclass vk.device (vk.gpu)
   ((device
     :initarg :device
     :initform nil
@@ -149,10 +149,10 @@
    "used to store render pass handle"))
 
 (defclass vk.framebuffer (vk.render-pass)
-  ((frambuffer
-    :initarg :frambuffer
+  ((framebuffer
+    :initarg :framebuffer
     :initform nil
-    :accessor frambuffer))
+    :accessor framebuffer))
   (:documentation
    "used to store framebuffer handle"))
 
