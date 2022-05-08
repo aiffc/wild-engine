@@ -1,0 +1,23 @@
+** Usage
+(push #P"sdl2-vulkan-path" asdf:*central-registry*)
+(push #P"shaderc-path"  asdf:*central-registry*)
+(push #P"wild-engine-path"  asdf:*central-registry*)
+(ql:quickload :wild-engine)
+
+** run test
+(ql:quickload :wild-engine/tests)
+(in-package :we.win-test)
+(win-test)
+
+*** run with debug
+(%we.dbg:dbg-trace :app :vk)
+(win-test)
+
+* change log 
+-----------------------------------------------------------------------------------------
+<2022-05-08 日>
+start project, initialize instance and windows
+
+** TODO todo 
+other vulkan handle initialize
+-----------------------------------------------------------------------------------------
