@@ -1,8 +1,8 @@
-(in-package :%wile-engine.core.windows)
+(in-package :%wild-engine.core.windows)
 
 (defun parse-window-arg (args)
   (declare (optimize (speed 3) (safety 0) (debug 0)))
-  (list :title (%we.utils:set-value args :win-title "wild engine window")
+  (list :title (we.u:set-value args :win-title "wild engine window")
 	:x (we.u:set-value args :win-x :centered)
 	:y (we.u:set-value args :win-y :centered)
 	:w (we.u:set-value args :win-w 600)

@@ -1,4 +1,4 @@
-(in-package :%wile-engine.core.vulkan)
+(in-package :%wild-engine.core.vulkan)
 
 (defmethod %we.utils:make-app :after (app (handle %we.utils:vk.cmds) args
 				      &aux

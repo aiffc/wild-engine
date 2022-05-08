@@ -1,4 +1,4 @@
-(in-package #:%wile-engine.core.utils)
+(in-package #:%wild-engine.core.utils)
 
 (defparameter *apps* (make-hash-table))
 

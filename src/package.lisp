@@ -19,7 +19,7 @@
    #:dbg-trace
    #:dbg-untrace))
 
-(defpackage :%wile-engine.core.utils
+(defpackage :%wild-engine.core.utils
   (:use #:cl)
   (:nicknames #:%we.utils)
   (:local-nicknames
@@ -74,37 +74,38 @@
    #:destroy-app
    #:app-handle))
 
-(defpackage :%wile-engine.core.windows
+(defpackage :%wild-engine.core.windows
   (:use #:cl)
   (:nicknames #:%we.win)
   (:local-nicknames
    (:%wild-engine.debug #:%we.dbg)
-   (:%wile-engine.core.utils #:%we.utils)
+   (:%wild-engine.core.utils #:%we.utils)
    (:wild-engine.utils #:we.u)))
 
-(defpackage :%wile-engine.core.vulkan
+(defpackage :%wild-engine.core.vulkan
   (:use #:cl)
   (:nicknames #:%we.vk)
   (:local-nicknames
    (:%wild-engine.debug #:%we.dbg)
-   (:%wile-engine.core.utils #:%we.utils))
+   (:%wild-engine.core.utils #:%we.utils))
   (:export
    #:with-gcmd
    #:with-shaders
    #:graphics-pipeline-create-info))
 
-(defpackage :%wile-engine.core.app
+(defpackage :%wild-engine.core.app
   (:use #:cl)
   (:nicknames #:%we.app)
   (:local-nicknames
    (:%wild-engine.debug #:%we.dbg)
-   (:%wile-engine.core.utils #:%we.utils)))
+   (:%wild-engine.core.utils #:%we.utils)))
 
 (defpackage :wild-engine.api
   (:use #:cl)
   (:nicknames #:we.api)
   (:local-nicknames
-   (:%wile-engine.core.vulkan #:%we.vk)
+   (:%wild-engine.core.vulkan #:%we.vk)
+   (:%wild-engine.core.utils #:%we.utils)
    (:wild-engine.utils #:we.u))
   (:export
    #:with-app

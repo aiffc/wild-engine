@@ -1,4 +1,4 @@
-(in-package :%wile-engine.core.vulkan)
+(in-package :%wild-engine.core.vulkan)
 
 (defun get-all-gpu-layers (gpu)
   "function used to get all gpu layers"

@@ -1,4 +1,4 @@
-(in-package :%wile-engine.core.vulkan)
+(in-package :%wild-engine.core.vulkan)
 
 (cffi:defcallback debug-callback %vk:bool32 ((message-severity %vk:debug-utils-message-severity-flag-bits-ext)
 					     (message-type %vk:debug-utils-message-type-flags-ext)

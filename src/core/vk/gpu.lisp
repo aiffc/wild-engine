@@ -1,4 +1,4 @@
-(in-package :%wile-engine.core.vulkan)
+(in-package :%wild-engine.core.vulkan)
 
 ;; not support select gpu now,use the first gpu
 (defun select-gpu (gpus)

@@ -1,4 +1,4 @@
-(in-package :%wile-engine.core.app)
+(in-package :%wild-engine.core.app)
 
 (defmethod %we.utils:make-app (app (handle %we.utils:app) args)
   "args ->
