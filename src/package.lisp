@@ -6,7 +6,9 @@
 (defpackage :wild-engine.utils
   (:use #:cl)
   (:nicknames #:we.u)
-  (:export))
+  (:export
+   #:create-symbol
+   #:set-value))
 
 (defpackage :%wild-engine.debug
   (:use #:cl)
@@ -70,15 +72,15 @@
    #:app
    #:make-app
    #:destroy-app
-   #:app-handle
-   #:set-value))
+   #:app-handle))
 
 (defpackage :%wile-engine.core.windows
   (:use #:cl)
   (:nicknames #:%we.win)
   (:local-nicknames
    (:%wild-engine.debug #:%we.dbg)
-   (:%wile-engine.core.utils #:%we.utils)))
+   (:%wile-engine.core.utils #:%we.utils)
+   (:wild-engine.utils #:we.u)))
 
 (defpackage :%wile-engine.core.vulkan
   (:use #:cl)
@@ -87,7 +89,9 @@
    (:%wild-engine.debug #:%we.dbg)
    (:%wile-engine.core.utils #:%we.utils))
   (:export
-   #:with-gcmd))
+   #:with-gcmd
+   #:with-shaders
+   #:graphics-pipeline-create-info))
 
 (defpackage :%wile-engine.core.app
   (:use #:cl)
@@ -100,7 +104,8 @@
   (:use #:cl)
   (:nicknames #:we.api)
   (:local-nicknames
-   (:%wile-engine.core.vulkan #:%we.vk))
+   (:%wile-engine.core.vulkan #:%we.vk)
+   (:wild-engine.utils #:we.u))
   (:export
    #:with-app
    #:defkey-down

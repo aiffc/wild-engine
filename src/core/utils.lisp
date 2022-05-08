@@ -194,15 +194,11 @@
 
 (defclass app (vk.signal) ())
 
-(declaim (inline app-handle set-value))
+(declaim (inline app-handle))
 
 (defun app-handle (app)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (gethash app *apps*))
 
-(defun set-value (lst key dval
-		  &aux
-		    (lval (getf lst key)))
-  (declare (optimize (speed 3) (debug 0) (safety 0)))
-  (if lval lval dval))
+
 

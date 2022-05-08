@@ -39,7 +39,8 @@
 					     (:file "framebuffer")
 					     (:file "cmd-pool")
 					     (:file "cmds")
-					     (:file "signal")))
+					     (:file "signal")
+					     (:file "graphics-pipeline")))
 			       ;; ./src/core/app
 			       (:module "app"
 				:components ((:file "app")))))
@@ -47,7 +48,8 @@
 		 (:module "math")
 		 ;; ./src/api
 		 (:module "api"
-		  :components ((:file "app"))))))
+		  :components ((:file "app")
+			       (:file "graphics-pipeline"))))))
   :description ""
   :in-order-to ((test-op (test-op "wild-engine/tests"))))
 
