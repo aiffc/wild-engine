@@ -1,23 +1,33 @@
 ** Usage
+#+BEGIN_SRC lisp
 (push #P"sdl2-vulkan-path" asdf:*central-registry*)
 (push #P"shaderc-path"  asdf:*central-registry*)
 (push #P"wild-engine-path"  asdf:*central-registry*)
 (ql:quickload :wild-engine)
+#+END_SRC
 
 ** run test
+#+BEGIN_SRC lisp
 (ql:quickload :wild-engine/tests)
 (in-package :we.win-test)
 (win-test)
+#+END_SRC
 
 *** run with debug
+#+BEGIN_SRC lisp
 (%we.dbg:dbg-trace :app :vk)
 (win-test)
+#+END_SRC
 
 * change log 
 -----------------------------------------------------------------------------------------
 <2022-05-08 日>
+#+BEGIN_SRC 
 start project, initialize instance and windows
+#+END_SRC
 
 ** TODO todo 
+#+BEGIN_SRC 
 other vulkan handle initialize
+#+END_SRC
 -----------------------------------------------------------------------------------------
