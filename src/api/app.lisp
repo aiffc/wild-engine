@@ -4,7 +4,11 @@
   (%we.utils:make-app app app-handle args))
 
 (defmacro with-app ((app &rest args) &body body)
-  (let ((app-sym (gensym "app")))
+  (let ((app-sym (gensym "app"))
+	(pipeline-init-fun (mapcar (lambda (name)
+				(we.u:create-symbol 'createg- name))
+			      (getf args :pipefun))))
+    (setf (getf args :pipefun) `',pipeline-init-fun)
     `(sdl2:with-init (:everything)
        (let ((,app-sym (make-instance '%we.utils:app))
 	     (,app (gensym "tapp")))

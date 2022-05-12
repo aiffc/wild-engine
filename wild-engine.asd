@@ -20,6 +20,15 @@
 		 (:module "dbg"
 		  :components ((:file "dbg")
 			       (:file "doc")))
+		 ;; ./src/math
+		 (:module "math"
+		  :components ((:file "vec2")
+			       (:file "vec3")
+			       (:file "vec4")
+			       (:file "mat2")
+			       (:file "mat3")
+			       (:file "mat4")
+			       (:file "util")))
 		 ;; ./src/core
 		 (:module "core"
 		  :components ((:file "utils")
@@ -36,20 +45,22 @@
 					     (:file "device")
 					     (:file "swapchain")
 					     (:file "render-pass")
+					     (:file "graphics-pipeline")
 					     (:file "framebuffer")
 					     (:file "cmd-pool")
 					     (:file "cmds")
 					     (:file "signal")
-					     (:file "graphics-pipeline")))
+					     (:file "layout")
+					     (:file "vertex-buffer")
+					     (:file "index-buffer")))
 			       ;; ./src/core/app
 			       (:module "app"
 				:components ((:file "app")))))
-		 ;; ./src/math
-		 (:module "math")
 		 ;; ./src/api
 		 (:module "api"
 		  :components ((:file "app")
-			       (:file "graphics-pipeline"))))))
+			       (:file "graphics-pipeline")
+			       (:file "set"))))))
   :description ""
   :in-order-to ((test-op (test-op "wild-engine/tests"))))
 
@@ -58,6 +69,8 @@
   :license ""
   :depends-on ("wild-engine" "rove")
   :components ((:file "tests/package")
-	       (:file "tests/win-test/win-test"))
+	       (:file "tests/utils")
+	       (:file "tests/win-test/win-test")
+	       (:file "tests/triangle/triangle"))
   :description "Test system for wild-engine"
   :perform (test-op (op c) (symbol-call :rove :run c)))

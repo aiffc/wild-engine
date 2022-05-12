@@ -7,9 +7,15 @@ win-x [window position of x]
 win-y [window position of y]
 win-w [window's width]
 win-h [window's height]
+pipefun [pipeline initialize list]
 "
   (declare (ignore args))
   (setf (gethash app %we.utils:*apps*) handle))
+
+(defmethod %we.utils:destroy-app :before (app (handle %we.utils:app))
+  (declare (ignore handle))
+  (%we.dbg:msg :app "free resource~%")
+  (%we.vk:free-buffer app))
 
 (defmethod %we.utils:destroy-app (app (handle %we.utils:app))
   (declare (ignore handle))

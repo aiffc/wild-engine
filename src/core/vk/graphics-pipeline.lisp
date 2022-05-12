@@ -1,12 +1,12 @@
 (in-package :%wild-engine.core.vulkan)
 
 (defparameter *pipeline-hash* (make-hash-table))
-(defparameter *descriptor-hash* (make-hash-table))
+;;(defparameter *descriptor-hash* (make-hash-table))
 
-(defstruct graphhics-pipeline
-  (handle nil)
-  (layout nil)
-  (layout-set nil))
+;; (defstruct graphhics-pipeline
+;;   (handle nil)
+;;   (layout nil)
+;;   (layout-set nil))
 
 (defun load-shader-module (path)
   (with-open-file (in path
@@ -46,13 +46,13 @@
        (vk:destroy-shader-module device module))
      shaders))
 ;; ------------------------------------------------------------------------------
-(defun vertex-input-stage (binding attribute)
-  "set the vertex input state can set it by define-vertex-stage"
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (ignore binding attribute))
-  (vk:make-pipeline-vertex-input-state-create-info
-   :vertex-binding-descriptions nil
-   :vertex-attribute-descriptions nil))
+;; (defun vertex-input-stage (binding attribute)
+;;   "set the vertex input state can set it by define-vertex-stage"
+;;   (declare (optimize (speed 3) (safety 0) (debug 0))
+;; 	   (ignore binding attribute))
+;;   (vk:make-pipeline-vertex-input-state-create-info
+;;    :vertex-binding-descriptions nil
+;;    :vertex-attribute-descriptions nil))
 ;; ------------------------------------------------------------------------------
 (defun input-assembly-state (topology)
   "set the topology by define-gpipeline"
@@ -171,8 +171,6 @@
 ;; ------------------------------------------------------------------------------
 (defun graphics-pipeline-create-info (app
 				      &key
-					(vertex-binding nil)
-					(vertex-attribute nil)
 					(topology :triangle-list)
 					(depth-clamp-enable nil)
 					(rasterizer-discard-enable nil)
@@ -192,12 +190,13 @@
 					(alpha-to-one-enable nil)
 				      &aux
 					(chandle (%we.utils:app-handle app))
-					(render-pass (%we.utils:render-pass chandle)))
+					(render-pass (%we.utils:render-pass chandle))
+					(layout (%we.utils:layout chandle)))
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (vk:make-graphics-pipeline-create-info
    :base-pipeline-handle nil
    :base-pipeline-index 0
-   :vertex-input-state (vertex-input-stage vertex-binding vertex-attribute)
+   :vertex-input-state (vertex-input-stage)    ;; defined in vertex-buffer.lisp
    :input-assembly-state (input-assembly-state topology)
    :tessellation-state (tessellation-state)
    :viewport-state (viewport-state)
@@ -221,4 +220,39 @@
    :color-blend-state (color-blend-state)
    :dynamic-state (dynamic-state)
    :render-pass render-pass
+   :layout layout
    :subpass 0))
+
+(defun create-graphics-pipeline (app name shaders create-fun
+				 &aux
+				   (chandle (%we.utils:app-handle app))
+				   (device (%we.utils:device chandle))
+				   (create-info (funcall create-fun app)))
+  (setf (vk:stages create-info) shaders)
+  (let ((pipeline (vk:create-graphics-pipelines device (list create-info))))
+    (%we.dbg:msg :app "create graphics pipeline ~a~%" pipeline)
+    (push (list :name name
+		:pipeline (nth 0 pipeline))
+	  (gethash app *pipeline-hash*))))
+
+(defun destroy-graphics-pipeline (app
+				  &aux
+				    (chandle (%we.utils:app-handle app))
+				    (device (%we.utils:device chandle))
+				    (pipelines (gethash app *pipeline-hash*)))
+  (when pipelines
+    (mapcar (lambda (pipeline)
+	 (%we.dbg:msg :app "destroy graphics pipeline ~a~%" pipeline)
+	 (vk:destroy-pipeline device (getf pipeline :pipeline)))
+       pipelines)
+    (setf (gethash app *pipeline-hash*) nil)))
+
+(defun get-gpipeline (app name
+		      &aux
+			(pipelines (gethash app *pipeline-hash*))
+			(pipeline (find name pipelines :key (lambda (lst)
+							      (getf lst :name)))))
+  (if pipeline
+      (getf pipeline :pipeline)
+      (error "can not get pipeline")))
+

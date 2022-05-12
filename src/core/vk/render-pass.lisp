@@ -59,7 +59,7 @@
 					(chandle (%we.utils:app-handle app))
 					(device (%we.utils:device chandle))
 					(format (%we.utils:swapchain-format chandle)))
-  (declare (ignore handle args))
+  (declare (ignore handle))
   (%we.dbg:msg :app "create render-pass : ->~%")
   (let* ((create-info (vk:make-render-pass-create-info
 		       :dependencies (dependencies)
@@ -68,7 +68,10 @@
 	 (render-pass (check-result #'vk:create-render-pass device create-info)))
     (setf (%we.utils:render-pass chandle) render-pass)
     (create-depth-buffer app)
-    (%we.dbg:msg :app "~2tcreate render pass [~a]~%" render-pass)))
+    (%we.dbg:msg :app "~2tcreate render pass [~a]~%" render-pass)
+    (mapcar (lambda (fun)
+	 (funcall fun app))
+       (getf args :pipefun))))
 
 (defmethod %we.utils:destroy-app :before (app (handle %we.utils:vk.render-pass)
 					  &aux
@@ -80,4 +83,5 @@
   (destroy-depth-buffer app)
   (when render-pass
     (%we.dbg:msg :app "destroy render-pass [~a]~%" render-pass)
-    (vk:destroy-render-pass device render-pass)))
+    (vk:destroy-render-pass device render-pass))
+  (destroy-graphics-pipeline app))
