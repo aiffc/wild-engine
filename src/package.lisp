@@ -1,3 +1,4 @@
+
 (defpackage :wild-engine
   (:use #:cl)
   (:nicknames #:we)
@@ -147,9 +148,13 @@
    #:create-shader-stage
    #:destroy-shader-stages
    #:graphics-pipeline-create-info
+   #:layout-create-info
    #:create-graphics-pipeline
    #:get-gpipeline
-   #:free-buffer))
+   #:free-buffer
+   #:create-vertex-buffer
+   #:vertex->mem
+   #:vertex))
 
 (defpackage :%wild-engine.core.app
   (:use #:cl)
@@ -174,7 +179,11 @@
    #:with-render
    #:define-shader-stage
    #:define-graphics-pipeline
+   #:define-vertex
+   #:make-vertex
    #:bind-graphics-pipeline
+   #:define-layout
    #:set-viewport
    #:set-scissor
+   #:set-vertex
    #:draw))

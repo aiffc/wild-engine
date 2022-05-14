@@ -112,12 +112,17 @@
 					  &aux
 					    (chandle (%we.utils:app-handle app))
 					    (swapchain (%we.utils:swapchain chandle))
-					    (device (%we.utils:device chandle)))
+					    (device (%we.utils:device chandle))
+					    (image-views (%we.utils:swapchain-image-views chandle)))
   (declare (ignore handle))
   (%we.dbg:msg :app "destroy swapchain: ->~%")
   (when (and swapchain device)
     (%we.dbg:msg :app "~2twating device[~a]~%" device)
     (vk:device-wait-idle device)
+    (mapcar (lambda (image-view)
+	 (%we.dbg:msg :app "~2tdestroy swapchain imageview [~a]~%" image-view)
+	 (vk:destroy-image-view device image-view))
+       image-views)
     (%we.dbg:msg :app "~2tdestrot swapchain [~a]~%" swapchain)
     (vk:destroy-swapchain-khr device swapchain)))
 

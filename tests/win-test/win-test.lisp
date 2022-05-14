@@ -1,6 +1,6 @@
 (in-package :we.win-test)
 
-(%we.dbg:dbg-trace :app :app-high)
+(%we.dbg:dbg-trace :app)
 
 (defun win-test (&key
 		   (x :centered)

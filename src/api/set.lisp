@@ -32,6 +32,12 @@
 				   :extent (vk:make-extent-2d
 					    :width width :height height)))))
 
+(defun set-vertex (cmd buffer &key
+				(offset 0))
+  (declare (optimize (speed 3) (debug 0) (safety 0))
+	   (type integer offset))
+  (vk:cmd-bind-vertex-buffers cmd 0 (list buffer) (list offset)))
+
 (defun draw (cmd &key
 		   (vcount 0))
   (declare (optimize (speed 3) (debug 0) (safety 0))

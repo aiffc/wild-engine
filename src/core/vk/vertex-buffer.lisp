@@ -48,6 +48,14 @@
   (cffi:with-foreign-slots ((v vt vn) ptr (:struct vertex)) 
     (make-vertex :v v :vt vt :vn vn)))
 
+(defun vertex->mem (val size)
+  (cffi:with-foreign-object (ptr '(:struct vertex) size)
+    (loop :for i from 0 :below size
+	  :do (progn
+		(setf (cffi:mem-aref ptr '(:struct vertex) i)
+		      (aref val i))))
+    ptr))
+
 (defun vertex-size ()
   (cffi:foreign-type-size '(:struct vertex)))
 
@@ -58,7 +66,7 @@
    :vertex-binding-descriptions
    (list
     (vk:make-vertex-input-binding-description
-     :input-rate 0
+     :input-rate :vertex
      :binding 0
      :stride (vertex-size)))
    :vertex-attribute-descriptions
@@ -77,7 +85,7 @@
      :location 2
      :binding 0
      :format :r32g32b32-sfloat
-     :offset (cffi:foreign-slot-offset '(:struct vertex) 'vt)))))
+     :offset (cffi:foreign-slot-offset '(:struct vertex) 'vn)))))
 
 (define-buffer-fun create-vertex-buffer (:vertex-buffer (vertex-size))
     "function for create vertex buffer")

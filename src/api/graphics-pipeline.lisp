@@ -47,7 +47,7 @@
 	  :alpha-to-coverage-enable (we.u:set-value rargs :atc nil)
 	  :alpha-to-one-enable (we.u:set-value rargs :ato nil))))
 
-(defmacro define-graphics-pipeline (name (shaders) &body body)
+(defmacro define-graphics-pipeline (name (shaders layout) &body body)
   "
 ;; just support single pipeline now
 ;; body like arguments are all optioanal
@@ -76,6 +76,7 @@
   (let ((gpipeline-create-info-fun (we.u:create-symbol 'g- name '-create-info))
 	(gpipeline-create-fun (we.u:create-symbol 'createg- name))
 	(slot-fun (we.u:create-symbol 'gslot- name))
+	(layout-fun (we.u:create-symbol 'layout- layout))
 	(assembly-args (parser-assembly-args (assoc :assembly body)))
 	(rasterization-args (parser-rasterization-args (assoc :rasterization body)))
 	(multiple-sample-args (parser-multiple-sample-args (assoc :multiple-sample body)))
@@ -89,7 +90,7 @@
 					       ,@multiple-sample-args))
        (defun ,gpipeline-create-fun (app)
 	 (with-shaders (,shader-sym app ,shaders)
-	   (%we.vk:create-graphics-pipeline app ',name ,shader-sym #',gpipeline-create-info-fun)))
+	   (%we.vk:create-graphics-pipeline app ',name ,shader-sym #',gpipeline-create-info-fun #',layout-fun)))
        (defun ,slot-fun (app)
 	 (%we.vk:get-gpipeline app ',name)))))
 

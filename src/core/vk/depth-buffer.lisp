@@ -88,7 +88,7 @@
 			       (chandle (%we.utils:app-handle app))
 			       (device (%we.utils:device chandle))
 			       (depths (gethash app *depth-hash*))
-			       (image (getf depths :image))
+			       (image (getf depths :images))
 			       (memory (getf depths :memory))
 			       (image-view (getf depths :image-view)))
   (declare (optimize (speed 3) (debug 0) (safety 0)))

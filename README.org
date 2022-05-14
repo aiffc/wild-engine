@@ -49,3 +49,13 @@ ready vertex code and descriptor sets code.
 vertex buffer and index buffer support.
 #+END_SRC
 -----------------------------------------------------------------------------------------
+<2022-05-14>
+#+BEGIN_SRC 
+add vertex and vertex buffer.
+#+END_SRC
+
+** TODO todo
+#+BEGIN_SRC 
+ready uniform buffer.
+#+END_SRC
+-----------------------------------------------------------------------------------------

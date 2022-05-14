@@ -190,8 +190,7 @@
 					(alpha-to-one-enable nil)
 				      &aux
 					(chandle (%we.utils:app-handle app))
-					(render-pass (%we.utils:render-pass chandle))
-					(layout (%we.utils:layout chandle)))
+					(render-pass (%we.utils:render-pass chandle)))
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (vk:make-graphics-pipeline-create-info
    :base-pipeline-handle nil
@@ -220,20 +219,22 @@
    :color-blend-state (color-blend-state)
    :dynamic-state (dynamic-state)
    :render-pass render-pass
-   :layout layout
    :subpass 0))
 
-(defun create-graphics-pipeline (app name shaders create-fun
+(defun create-graphics-pipeline (app name shaders create-fun &optional (layout nil)
 				 &aux
 				   (chandle (%we.utils:app-handle app))
 				   (device (%we.utils:device chandle))
 				   (create-info (funcall create-fun app)))
-  (setf (vk:stages create-info) shaders)
-  (let ((pipeline (vk:create-graphics-pipelines device (list create-info))))
-    (%we.dbg:msg :app "create graphics pipeline ~a~%" pipeline)
-    (push (list :name name
-		:pipeline (nth 0 pipeline))
-	  (gethash app *pipeline-hash*))))
+  (let ((playout (create-layout app layout)))
+    (setf (vk:stages create-info) shaders
+	  (vk:layout create-info) playout)
+    (let ((pipeline (vk:create-graphics-pipelines device (list create-info))))
+      (%we.dbg:msg :app "create graphics pipeline ~a~%" pipeline)
+      (push (list :name name
+		  :pipeline (nth 0 pipeline)
+		  :layout playout)
+	    (gethash app *pipeline-hash*)))))
 
 (defun destroy-graphics-pipeline (app
 				  &aux
@@ -242,6 +243,7 @@
 				    (pipelines (gethash app *pipeline-hash*)))
   (when pipelines
     (mapcar (lambda (pipeline)
+	 (destroy-layout app (getf pipeline :layout))
 	 (%we.dbg:msg :app "destroy graphics pipeline ~a~%" pipeline)
 	 (vk:destroy-pipeline device (getf pipeline :pipeline)))
        pipelines)

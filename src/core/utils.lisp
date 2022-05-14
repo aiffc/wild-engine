@@ -192,31 +192,31 @@
   (:documentation
    "use to store semaphores and fences type is list!!!!"))
 
-(defclass vk.layout (vk.signal)
-  ((layout
-    :initarg :layout
-    :initform nil
-    :accessor layout)
-   (layout-descriptor-pool
-    :initarg :layout-descriptor-pool
-    :initform nil
-    :accessor layout-descriptor-pool)
-   (layout-descriptor-set-layout
-    :initarg :layout-descriptor-set-layout
-    :initform nil
-    :accessor layout-descriptor-set-layout)
-   (layout-descriptor-sets
-    :initarg :layout-descriptor-sets
-    :initform nil
-    :accessor layout-descriptor-sets)
-   (layout-uniform-buffers
-    :initarg :layout-uniform-buffers
-    :initform nil
-    :accessor layout-uniform-buffers))
-  (:documentation
-   "use to store pipeline layout and descriptor"))
+;; (defclass vk.layout (vk.signal)
+;;   ((layout
+;;     :initarg :layout
+;;     :initform nil
+;;     :accessor layout)
+;;    (layout-descriptor-pool
+;;     :initarg :layout-descriptor-pool
+;;     :initform nil
+;;     :accessor layout-descriptor-pool)
+;;    (layout-descriptor-set-layout
+;;     :initarg :layout-descriptor-set-layout
+;;     :initform nil
+;;     :accessor layout-descriptor-set-layout)
+;;    (layout-descriptor-sets
+;;     :initarg :layout-descriptor-sets
+;;     :initform nil
+;;     :accessor layout-descriptor-sets)
+;;    (layout-uniform-buffers
+;;     :initarg :layout-uniform-buffers
+;;     :initform nil
+;;     :accessor layout-uniform-buffers))
+;;   (:documentation
+;;    "use to store pipeline layout and descriptor"))
 
-(defclass app (vk.layout) ())
+(defclass app (vk.signal) ())
 
 (declaim (inline app-handle))
 

@@ -165,20 +165,24 @@
 	    (gethash app *buffer-hash*)))
     (values buffer memory)))
 
-(defun free-memory (device memory)
+(defun free-memory (app memory
+		    &aux
+		      (chandle (%we.utils:app-handle app))
+		      (device (%we.utils:device chandle)))
   (declare (optimize (speed 3) (safety 0) (debug 0)))
   (%we.dbg:msg :app "free memory ~a~%" memory)
   (vk:free-memory device memory))
 
-(defun destroy-buffer (device buffer)
+(defun destroy-buffer (app buffer
+		       &aux
+			 (chandle (%we.utils:app-handle app))
+			 (device (%we.utils:device chandle)))
   (declare (optimize (speed 3) (safety 0) (debug 0)))
   (%we.dbg:msg :app "destroy buffer ~a~%" buffer)
   (vk:destroy-buffer device buffer))
 
 (defun free-buffer (app
 		    &aux
-		      (chandle (%we.utils:app-handle app))
-		      (device (%we.utils:device chandle))
 		      (buffers (gethash app *buffer-hash*)))
   "function used to destroy buffer and free memory"
   (declare (optimize (speed 3) (safety 0) (debug 0)))
@@ -187,9 +191,9 @@
 	 (let ((buffer (getf lst :buffer))
 	       (memory (getf lst :memory)))
 	   (when memory
-	     (free-memory device memory))
+	     (free-memory app memory))
 	   (when buffer
-	     (destroy-buffer device buffer))))
+	     (destroy-buffer app buffer))))
        buffers)
     (setf (gethash app *buffer-hash*) nil)))
 

@@ -60,7 +60,9 @@
 		 (:module "api"
 		  :components ((:file "app")
 			       (:file "graphics-pipeline")
-			       (:file "set"))))))
+			       (:file "set")
+			       (:file "layout")
+			       (:file "vertex"))))))
   :description ""
   :in-order-to ((test-op (test-op "wild-engine/tests"))))
 
@@ -71,6 +73,7 @@
   :components ((:file "tests/package")
 	       (:file "tests/utils")
 	       (:file "tests/win-test/win-test")
-	       (:file "tests/triangle/triangle"))
+	       (:file "tests/triangle/triangle")
+	       (:file "tests/vertex/vertex"))
   :description "Test system for wild-engine"
   :perform (test-op (op c) (symbol-call :rove :run c)))

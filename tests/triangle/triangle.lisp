@@ -6,7 +6,9 @@
   (we.tu:*triangle-vert* :vertex)
   (we.tu:*triangle-frag* :fragment))
 
-(we.api:define-graphics-pipeline triangle (triangle-shader)
+(we.api:define-layout triangle ())
+
+(we.api:define-graphics-pipeline triangle (triangle-shader triangle)
   (:assembly
    :topology :triangle-list)
   (:rasterization 
