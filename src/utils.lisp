@@ -33,6 +33,21 @@
 		      `(progn ,@body))
 		 (my-free ,handle)))))))
 
+(defmacro with-mvalues ((&rest args) &body body)
+  (destructuring-bind (first-bindings . rest-bindings) args
+    (let ((bindings (first first-bindings))
+	  (funs (second first-bindings)))
+      (typecase bindings
+	(null `(progn ,@body))
+	(list `(multiple-value-bind ,bindings ,funs
+		 ,(if rest-bindings
+		      `(with-mvalues ,rest-bindings ,@body)
+		      `(progn ,@body))))
+	(atom `(let ((,bindings ,funs))
+		 ,(if rest-bindings
+		      `(with-mvalues ,rest-bindings ,@body)
+		      `(progn ,@body))))))))
+
 (cffi:defctype size-t #.(if (= 4 (cffi:foreign-type-size :pointer)) :uint32 :uint64))
 
 (cffi:defcfun ("memcpy" memcpy) :pointer

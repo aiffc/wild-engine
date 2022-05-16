@@ -33,3 +33,12 @@
    (:we.test.utils #:we.tu))
   (:export
    #:vertex))
+
+(defpackage :we.index
+  (:use #:cl)
+  (:nicknames #:index)
+  (:local-nicknames
+   (:wild-engine.api #:we.api)
+   (:we.test.utils #:we.tu))
+  (:export
+   #:index))

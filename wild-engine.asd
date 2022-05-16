@@ -74,6 +74,7 @@
 	       (:file "tests/utils")
 	       (:file "tests/win-test/win-test")
 	       (:file "tests/triangle/triangle")
-	       (:file "tests/vertex/vertex"))
+	       (:file "tests/vertex/vertex")
+	       (:file "tests/index/index"))
   :description "Test system for wild-engine"
   :perform (test-op (op c) (symbol-call :rove :run c)))

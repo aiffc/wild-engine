@@ -38,8 +38,17 @@
 	   (type integer offset))
   (vk:cmd-bind-vertex-buffers cmd 0 (list buffer) (list offset)))
 
-(defun draw (cmd &key
-		   (vcount 0))
+(defun set-index (cmd buffer &key (offset 0))
   (declare (optimize (speed 3) (debug 0) (safety 0))
-	   (type integer vcount))
-  (vk:cmd-draw cmd vcount 1 0 0))
+	   (type integer offset))
+  (vk:cmd-bind-index-buffer cmd buffer offset :uint32))
+
+(defun draw (cmd &key
+		   (vcount 0)
+		   (icount 0)
+		   (index-p nil))
+  (declare (optimize (speed 3) (debug 0) (safety 0))
+	   (type integer vcount icount))
+  (if index-p
+      (vk:cmd-draw-indexed cmd icount 1 0 0 0)
+      (vk:cmd-draw cmd vcount 1 0 0)))

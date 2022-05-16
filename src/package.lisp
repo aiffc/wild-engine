@@ -12,6 +12,7 @@
    #:set-value
    #:to-single-float
    #:with-cffi-alloc
+   #:with-mvalues
    #:memcpy))
 
 (defpackage :%wild-engine.debug
@@ -154,7 +155,8 @@
    #:free-buffer
    #:create-vertex-buffer
    #:vertex->mem
-   #:vertex))
+   #:vertex
+   #:create-index-buffer))
 
 (defpackage :%wild-engine.core.app
   (:use #:cl)
@@ -181,9 +183,11 @@
    #:define-graphics-pipeline
    #:define-vertex
    #:make-vertex
+   #:define-index
    #:bind-graphics-pipeline
    #:define-layout
    #:set-viewport
    #:set-scissor
    #:set-vertex
+   #:set-index
    #:draw))

@@ -1,6 +1,6 @@
 (in-package :wild-engine.api)
 
-(defmacro define-vertex (name &rest context)
+(defmacro define-vertex (name () &rest context)
   (let ((vertex-initial-fun (we.u:create-symbol 'createv- name)))
     `(progn
        (eval-when (:compile-toplevel :execute :load-toplevel))
@@ -21,3 +21,15 @@
   (make-instance '%we.vk:vertex :vertex-v v
 				:vertex-vt vt
 				:vertex-vn vn))
+
+(defmacro define-index (name (&optional (ctype :uint32)) &body data)
+  (let* ((fun-name (we.u:create-symbol 'createi- name)))
+    `(progn
+       (eval-when (:compile-toplevel :load-toplevel :execute))
+       (defun ,fun-name (app)
+	 (let ((size (length ',data)))
+	   (cffi:with-foreign-object (ptr ,ctype size)
+	     (loop :for i :from 0 :below size
+		   :for d := (nth i ',data)
+		   :do (setf (cffi:mem-aref ptr ,ctype i) d))
+	     (%we.vk:create-index-buffer app ptr size)))))))
