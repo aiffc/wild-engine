@@ -156,7 +156,8 @@
    #:create-vertex-buffer
    #:vertex->mem
    #:vertex
-   #:create-index-buffer))
+   #:create-index-buffer
+   #:destroy-uniform-buffer))
 
 (defpackage :%wild-engine.core.app
   (:use #:cl)

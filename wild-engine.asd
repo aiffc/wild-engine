@@ -50,6 +50,7 @@
 					     (:file "cmd-pool")
 					     (:file "cmds")
 					     (:file "signal")
+					     (:file "uniform")
 					     (:file "layout")
 					     (:file "vertex-buffer")
 					     (:file "index-buffer")))
@@ -61,6 +62,7 @@
 		  :components ((:file "app")
 			       (:file "graphics-pipeline")
 			       (:file "set")
+			       (:file "uniform")
 			       (:file "layout")
 			       (:file "vertex"))))))
   :description ""

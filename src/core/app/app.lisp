@@ -15,7 +15,8 @@ pipefun [pipeline initialize list]
 (defmethod %we.utils:destroy-app :before (app (handle %we.utils:app))
   (declare (ignore handle))
   (%we.dbg:msg :app "free resource~%")
-  (%we.vk:free-buffer app))
+  (%we.vk:free-buffer app)
+  (%we.vk:destroy-uniform-buffer app))
 
 (defmethod %we.utils:destroy-app (app (handle %we.utils:app))
   (declare (ignore handle))
