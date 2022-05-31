@@ -226,14 +226,15 @@
 				   (chandle (%we.utils:app-handle app))
 				   (device (%we.utils:device chandle))
 				   (create-info (funcall create-fun app)))
-  (let ((playout (create-layout app layout)))
+  (multiple-value-bind (playout set-layout) (create-layout app layout)
     (setf (vk:stages create-info) shaders
 	  (vk:layout create-info) playout)
     (let ((pipeline (vk:create-graphics-pipelines device (list create-info))))
       (%we.dbg:msg :app "create graphics pipeline ~a~%" pipeline)
       (push (list :name name
 		  :pipeline (nth 0 pipeline)
-		  :layout playout)
+		  :layout playout
+		  :set-layout set-layout)
 	    (gethash app *pipeline-hash*)))))
 
 (defun destroy-graphics-pipeline (app
@@ -243,7 +244,7 @@
 				    (pipelines (gethash app *pipeline-hash*)))
   (when pipelines
     (mapcar (lambda (pipeline)
-	 (destroy-layout app (getf pipeline :layout))
+	 (destroy-layout app (getf pipeline :layout) (getf pipeline :set-layout))
 	 (%we.dbg:msg :app "destroy graphics pipeline ~a~%" pipeline)
 	 (vk:destroy-pipeline device (getf pipeline :pipeline)))
        pipelines)
