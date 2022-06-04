@@ -72,7 +72,7 @@
 	 (cffi:with-foreign-slots (,struct-symbols ptr (:struct ,name))
 	   (list ,@struct-symbols)))
        (defun ,ucreate-fun (app)
-	 (%we.vk:create-uniform-buffer app (cffi:foreign-type-size '(:stuct ,name)))))))
+	 (%we.vk:create-uniform-buffer app (cffi:foreign-type-size '(:struct ,name)))))))
 
 ;; ((:uniform-buffer
 ;;       :name aa 

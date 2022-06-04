@@ -2,7 +2,7 @@
 
 (defparameter *layout-hash* (make-hash-table))
 
-(defun layout-create-info (&rest layout-bindings)
+(defun layout-create-info (layout-bindings)
   (declare (optimize (speed 3) (safety 0) (debug 0)))
   (if layout-bindings
       (vk:make-descriptor-set-layout-create-info :bindings layout-bindings)
@@ -14,7 +14,7 @@
 			(device (%we.utils:device chandle)))
   "ready to do"
   (let* ((layout-infos (funcall layout-info))
-	 (set-layout (if layout-infos (list (vk:create-descriptor-set-layout device layout-infos)) nil))
+	 (set-layout (if layout-infos (list (vk:create-descriptor-set-layout device layout-infos)) nil))      ;; list 
 	 (pipeline-layout-create-info (vk:make-pipeline-layout-create-info
 				       :set-layouts set-layout))
 	 (layout (vk:create-pipeline-layout device pipeline-layout-create-info)))
@@ -31,7 +31,7 @@
   (declare (optimize (speed 3) (safety 0) (debug 0)))
   (when set-layout
     (%we.dbg:msg :app "destroy descriptor-sets ~a~%" set-layout)
-    (vk:destroy-descriptor-set-layout device set-layout))
+    (vk:destroy-descriptor-set-layout device (first set-layout)))  ;; to do
   (when layout
     (%we.dbg:msg :app "destroy layout ~a~%" layout)
     (vk:destroy-pipeline-layout device layout)))

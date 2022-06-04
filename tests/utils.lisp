@@ -19,5 +19,9 @@
 (defparameter *vertex-frag* (build-shader-path "vertex" "frag"))
 (defparameter *vertex-vert* (build-shader-path "vertex" "vert"))
 
+(defparameter *uniform-frag* (build-shader-path "uniform" "frag"))
+(defparameter *uniform-vert* (build-shader-path "uniform" "vert"))
+
+
 ;;(defparameter *triangle-vert*)
 

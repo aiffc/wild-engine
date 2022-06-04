@@ -1,4 +1,3 @@
-
 (in-package :we.vertex)
 
 ;;(%we.dbg:dbg-trace :app :vk)

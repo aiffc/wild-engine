@@ -6,7 +6,9 @@
    #:*triangle-frag*
    #:*triangle-vert*
    #:*vertex-frag*
-   #:*vertex-vert*))
+   #:*vertex-vert*
+   #:*uniform-frag*
+   #:*uniform-vert*))
 
 (defpackage :we.win-test
   (:use #:cl)
@@ -42,3 +44,12 @@
    (:we.test.utils #:we.tu))
   (:export
    #:index))
+
+(defpackage :we.uniform
+  (:use #:cl)
+  (:nicknames #:uniform)
+  (:local-nicknames
+   (:wild-engine.api #:we.api)
+   (:we.test.utils #:we.tu))
+  (:export
+   #:uniform))

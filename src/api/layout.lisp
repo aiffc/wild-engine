@@ -27,10 +27,9 @@
   "ready to do"
   (let* ((layout-fun (we.u:create-symbol 'layout- name))
 	 (uniform-buffers (collect-key body :uniform-buffer))
-	 (uniform-bodies (parse-uniform-bodies name uniform-buffers))
-	 (uniform-infos (generate-uniform-info uniform-buffers)))
+	 (uniform-bodies (parse-uniform-bodies name uniform-buffers)))
     `(progn
        (eval-when (:compile-toplevel :execute :load-toplevel))
        ,@uniform-bodies
        (defun ,layout-fun ()
-	 (%we.vk:layout-create-info ,@uniform-infos)))))
+	 (%we.vk:layout-create-info (generate-uniform-info ',uniform-buffers))))))
