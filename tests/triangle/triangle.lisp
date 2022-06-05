@@ -1,6 +1,6 @@
 (in-package :we.triangle)
 
-(%we.dbg:dbg-trace :app)
+(%we.dbg:dbg-trace :app :vk)
 
 (we.api:define-shader-stage triangle-shader ()
   (we.tu:*triangle-vert* :vertex)
@@ -44,7 +44,7 @@
 			:pipefun (triangle))
     (we.api:with-main-loop ()
       (we.api:with-render (app cmd :clear-color #(0.0 0.0 0.0 1.0))
-	(we.api:bind-graphics-pipeline app cmd #'gslot-triangle)
+	(we.api:bind-gpipeline 'triangle)
 	;; just use default value
 	(we.api:set-viewport cmd)
 	(we.api:set-scissor cmd)

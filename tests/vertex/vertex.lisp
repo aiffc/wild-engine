@@ -51,7 +51,7 @@
     (multiple-value-bind (vbuffer vcount) (createv-vertex app)
       (we.api:with-main-loop ()
 	(we.api:with-render (app cmd :clear-color #(0.0 0.0 0.0 1.0))
-	  (we.api:bind-graphics-pipeline app cmd #'gslot-vertex)
+	  (we.api:bind-gpipeline 'vertex)
 	  (we.api:set-viewport cmd)
 	  (we.api:set-scissor cmd)
 	  (we.api:set-vertex cmd vbuffer)

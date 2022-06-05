@@ -13,22 +13,15 @@
       :binding 0
       :struct ((:type :mat4
 		:accessor model
-		:initform (m4:make 1.0 2.0 3.0 0.0
-				   1.0 2.0 3.0 0.0
-				   1.0 2.0 3.0 0.0
-				   1.0 2.0 3.0 0.0))
+		:initform (m4:rotation-from-axis-angle (v3:make 0.0 0.0 0.0) 45.0))
 	       (:type :mat4
 		:accessor view
-		:initform (m4:make 3.0 2.0 3.0 0.0
-				   3.0 2.0 3.0 0.0
-				   3.0 2.0 3.0 0.0
-				   3.0 2.0 3.0 0.0))
+		:initform (m4:look-at (v3:make 0.0 0.0 1.0)
+				      (v3:make 2.0 2.0 2.0)
+				      (v3:make 0.0 0.0 0.0)))
 	       (:type :mat4
 		:accessor proj
-		:initform (m4:make 3.0 2.0 3.0 0.0
-				   3.0 2.0 3.0 0.0
-				   3.0 2.0 3.0 0.0
-				   3.0 2.0 3.0 0.0))))))
+		:initform (rtg-math.projection:perspective 600.0 600.0 0.1 10.0 -45.0))))))
 
 (we.api:define-graphics-pipeline uniform (uniform-shader uniform)
   (:assembly
@@ -66,7 +59,8 @@
 		  (y :centered)
 		  (w 600)
 		  (h 600)
-		  (title "windows test"))
+		  (title "windows test")
+		  (uangle 0.0))
   (we.api:with-app (app :win-title title
 			:win-x x
 			:win-y y
@@ -76,8 +70,11 @@
     (we.u:with-mvalues (((vbuf) (createv-uniform-vertex-data app))
 			((ibuf icount) (createi-uniform-index-data app)))
       (we.api:with-main-loop ()
-	(we.api:with-render (app cmd :clear-color #(0.0 0.0 0.0 1.0))
-	  (we.api:bind-graphics-pipeline app cmd #'gslot-uniform)
+	(we.api:with-render (app cmd
+			     :clear-color #(0.0 0.0 0.0 1.0)
+			     :update-funs (ubo))
+	  (uset-ubo 'model (m4:rotation-from-axis-angle (v3:make 0.0 0.0 1.0) (incf uangle 0.01)))
+	  (we.api:bind-gpipeline 'uniform)
 	  (we.api:set-viewport cmd)
 	  (we.api:set-scissor cmd)
 	  (we.api:set-vertex cmd vbuf)

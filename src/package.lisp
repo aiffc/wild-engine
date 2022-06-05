@@ -158,7 +158,11 @@
    #:vertex
    #:create-index-buffer
    #:create-uniform-buffer
-   #:destroy-uniform-buffer))
+   #:destroy-uniform-buffer
+   #:map-uniform
+   #:create-descriptor-size-info
+   #:descriptor-pool-create-info
+   #:set-current-pipeline))
 
 (defpackage :%wild-engine.core.app
   (:use #:cl)
@@ -186,7 +190,7 @@
    #:define-vertex
    #:make-vertex
    #:define-index
-   #:bind-graphics-pipeline
+   #:bind-gpipeline
    #:define-layout
    #:set-viewport
    #:set-scissor

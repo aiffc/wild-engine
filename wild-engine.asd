@@ -51,6 +51,7 @@
 					     (:file "cmds")
 					     (:file "signal")
 					     (:file "uniform")
+					     (:file "descriptor")
 					     (:file "layout")
 					     (:file "vertex-buffer")
 					     (:file "index-buffer")))
@@ -63,6 +64,7 @@
 			       (:file "graphics-pipeline")
 			       (:file "set")
 			       (:file "uniform")
+			       (:file "descriptor")
 			       (:file "layout")
 			       (:file "vertex"))))))
   :description ""

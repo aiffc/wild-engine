@@ -221,7 +221,7 @@
    :render-pass render-pass
    :subpass 0))
 
-(defun create-graphics-pipeline (app name shaders create-fun &optional (layout nil)
+(defun create-graphics-pipeline (app name shaders create-fun &optional (layout nil) (descriptor nil)
 				 &aux
 				   (chandle (%we.utils:app-handle app))
 				   (device (%we.utils:device chandle))
@@ -229,13 +229,28 @@
   (multiple-value-bind (playout set-layout) (create-layout app layout)
     (setf (vk:stages create-info) shaders
 	  (vk:layout create-info) playout)
-    (let ((pipeline (vk:create-graphics-pipelines device (list create-info))))
+    (let* ((pipeline (vk:create-graphics-pipelines device (list create-info)))
+	   (descriptor-pool (create-descriptor-pool app descriptor))
+	   (descriptor-sets (alloc-descriptor-sets app set-layout descriptor-pool)))
       (%we.dbg:msg :app "create graphics pipeline ~a~%" pipeline)
+      (setf *current-pipeline* name)
       (push (list :name name
 		  :pipeline (nth 0 pipeline)
 		  :layout playout
-		  :set-layout set-layout)
+		  :set-layout set-layout
+		  :descriptor-pool descriptor-pool
+		  :descriptor-sets descriptor-sets)
 	    (gethash app *pipeline-hash*)))))
+
+(defun slot-pipeline (app name &optional (slot-type :pipeline)
+		      &aux
+			(pipelines (gethash app *pipeline-hash*)))
+  "get pipeline info ny name"
+  (getf (find name pipelines
+	      :key (lambda (u)
+		     (getf u :name))
+	      :test #'eql)
+	slot-type))
 
 (defun destroy-graphics-pipeline (app
 				  &aux
@@ -244,10 +259,13 @@
 				    (pipelines (gethash app *pipeline-hash*)))
   (when pipelines
     (mapcar (lambda (pipeline)
+	 (free-descriptor-sets app (getf pipeline :descriptor-sets) (getf pipeline :descriptor-pool))
+	 (destroy-descriptor-pool app (getf pipeline :descriptor-pool))
 	 (destroy-layout app (getf pipeline :layout) (getf pipeline :set-layout))
 	 (%we.dbg:msg :app "destroy graphics pipeline ~a~%" pipeline)
 	 (vk:destroy-pipeline device (getf pipeline :pipeline)))
        pipelines)
+    (setf *current-pipeline* nil)
     (setf (gethash app *pipeline-hash*) nil)))
 
 (defun get-gpipeline (app name

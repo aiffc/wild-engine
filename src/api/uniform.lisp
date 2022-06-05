@@ -75,18 +75,27 @@
     (loop :for i :from 0 :below (length asymbol)
 	  :collect (list 'setf (nth i asymbol) (nth i rsymbol)))))
 
+(defun clear-uniform-hash (layout-name)
+  (setf (gethash layout-name *uniform-hash*) nil))
+
 (defun parse-uniform-body (layout-name body
 			   &aux (uargs (rest body)))
   "function used to generate a struct and translate method"
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (let* ((sbody (getf uargs :struct))            ;; get struct body
 	 (name (getf uargs :name))               ;; get struct name
+	 (binding (getf uargs :binding))
 	 (struct-symbols (mapcar (lambda (bd) (getf bd :accessor)) sbody))
 	 (uname (we.u:create-symbol 'c- name))
 	 (alloc-body (generate-uniform-to-c-body sbody))  ;; generate alloc body 
 	 (set-body (gen-set-body alloc-body sbody))       ;; generate set body
-	 (ucreate-fun (we.u:create-symbol 'create-uniform- name)))
-    (push ucreate-fun (gethash layout-name *uniform-hash*))   ;; store uniform initialize functions
+	 (ucreate-fun (we.u:create-symbol 'create-uniform- name))
+	 (set-fun (we.u:create-symbol 'uset- name))
+	 (get-fun (we.u:create-symbol 'uget- name))
+	 (reset-fun (we.u:create-symbol 'ureset- name))
+	 (update-fun (we.u:create-symbol 'uupdate- name))
+	 (usymbol (gensym)))
+    (pushnew ucreate-fun (gethash layout-name *uniform-hash*))   ;; store uniform initialize functions
     `(progn
        (defclass ,name ()
 	 (,@ (gen-uniform-class sbody)))
@@ -100,18 +109,19 @@
 	 (cffi:with-foreign-slots (,struct-symbols ptr (:struct ,name))
 	   (list ,@struct-symbols)))
        (defun ,ucreate-fun (app)
-	 (%we.vk:create-uniform-buffer app (cffi:foreign-type-size '(:struct ,name)))))))
-
-;; ((:uniform-buffer
-;;       :name aa 
-;;       :binding 0
-;;       :struct ((a :vec2)       ;; uniform buffer info create uniform buffer here
-;; 			 (b :vec2)))
-;;  (:uniform-buffer
-;;       :name aa 
-;;       :binding 0
-;;       :struct ((a :vec2)       ;; uniform buffer info create uniform buffer here
-;; 			 (b :vec2))))
+	 (%we.vk:create-uniform-buffer app ',name (cffi:foreign-type-size '(:struct ,name)) ,binding))
+       (let ((,usymbol (make-instance ',name)))
+	 (defun ,set-fun (slot-name val)
+	   (setf (slot-value ,usymbol slot-name) val))
+	 (defun ,get-fun (slot-name)
+	   (slot-value ,usymbol slot-name))
+	 (defun ,reset-fun ()
+	   (setf ,usymbol (make-instance ',name)))
+	 (defun ,update-fun (app index)
+	   (let ((ptr (cffi:foreign-alloc '(:struct ,name))))
+	     (setf (cffi:mem-ref ptr '(:struct ,name)) ,usymbol)
+	     (%we.vk:map-uniform app ',name ptr (cffi:foreign-type-size '(:struct ,name)) index)
+	     (cffi:foreign-free ptr)))))))
 
 (defun parse-uniform-bodies (app args)
   "convert args to a structs"

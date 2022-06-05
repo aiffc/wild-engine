@@ -8,6 +8,21 @@
       (vk:make-descriptor-set-layout-create-info :bindings layout-bindings)
       nil))
 
+(defun create-descriptor-size-info (app type
+				    &aux
+				      (chandle (%we.utils:app-handle app))
+				      (size (length (%we.utils:swapchain-images chandle))))
+  (vk:make-descriptor-pool-size :type type
+				:descriptor-count size))
+
+(defun descriptor-pool-create-info (app descriptor-sizes
+				    &aux
+				      (chandle (%we.utils:app-handle app))
+				      (size (length (%we.utils:swapchain-images chandle))))
+  (when descriptor-sizes
+    (vk:make-descriptor-pool-create-info :max-sets size
+					 :pool-sizes descriptor-sizes)))
+
 (defun create-layout (app layout-info
 		      &aux
 			(chandle (%we.utils:app-handle app))

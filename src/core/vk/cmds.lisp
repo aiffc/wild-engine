@@ -1,5 +1,7 @@
 (in-package :%wild-engine.core.vulkan)
 
+(defparameter *current-pipeline* nil)
+
 (defmethod %we.utils:make-app :after (app (handle %we.utils:vk.cmds) args
 				      &aux
 					(chandle (%we.utils:app-handle app))
@@ -105,13 +107,37 @@
      ,@body
      (end-render-pass ,app ,index)))
 
-(defmacro with-gcmd ((app cmd x y width height clear-color)
+(defun call-update-funs (app index update-funs)
+  (mapc (lambda (fun)
+       (funcall fun app index))
+     update-funs))
+
+(defun bind-pipeline (app cmd index
+		      &aux
+			(pipeline (slot-pipeline app *current-pipeline*))
+			(playout (slot-pipeline app *current-pipeline* :layout))
+			(sets (slot-pipeline app *current-pipeline* :descriptor-sets)))
+  (when (and *current-pipeline* pipeline)
+    (vk:cmd-bind-pipeline cmd :graphics pipeline)
+    (when (and playout sets)
+      (vk:cmd-bind-descriptor-sets cmd :graphics
+				   playout
+				   0
+				   (list (nth index sets))
+				   nil))))
+
+(defun set-current-pipeline (name)
+  (setf *current-pipeline* name))
+
+(defmacro with-gcmd ((app cmd x y width height clear-color update-funs)
 		     &body body)
   `(let* ((chandle (%we.utils:app-handle ,app))
 	  (cmds (%we.utils:cmds-graphics chandle)))
      (dotimes (index (length cmds))
        (let ((,cmd (nth index cmds)))
+	 (call-update-funs ,app index ,update-funs)
 	 (%with-gcmd (,app index)
 	   (%with-render-pass (,app index ,x ,y ,width ,height ,clear-color)
+	     (bind-pipeline ,app ,cmd index)
 	     ,@body)))
        (present ,app index))))

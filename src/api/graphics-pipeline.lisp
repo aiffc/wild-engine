@@ -77,6 +77,7 @@
 	(gpipeline-create-fun (we.u:create-symbol 'createg- name))
 	(slot-fun (we.u:create-symbol 'gslot- name))
 	(layout-fun (we.u:create-symbol 'layout- layout))
+	(descriptor-fun (we.u:create-symbol 'descriptor- name))
 	(uniform-funs (gethash layout *uniform-hash*))
 	(assembly-args (parser-assembly-args (assoc :assembly body)))
 	(rasterization-args (parser-rasterization-args (assoc :rasterization body)))
@@ -94,13 +95,15 @@
 	   (mapc #'(lambda (fun)
 		 (funcall fun app))
 	      ',uniform-funs)
-	   ;; (setf (gethash ,layout *uniform-hash*) nil)
-	   (%we.vk:create-graphics-pipeline app ',name ,shader-sym #',gpipeline-create-info-fun #',layout-fun)))
+	   ;;(setf (gethash layout *uniform-hash*) nil)
+	   (%we.vk:create-graphics-pipeline app ',name ,shader-sym #',gpipeline-create-info-fun #',layout-fun #',descriptor-fun)))
        (defun ,slot-fun (app)
 	 (%we.vk:get-gpipeline app ',name)))))
 
-(defun bind-graphics-pipeline (app cmd pipeline-fun)
-  (let ((pipeline (funcall pipeline-fun app)))
-    (vk:cmd-bind-pipeline cmd :graphics pipeline)))
+;; (defmacro bind-gpipeline (app cmd name)
+;;   (let ((slot-fun (we.u:create-symbol 'gslot- name)))
+;;     `(vk:cmd-bind-pipeline ,cmd :graphics (funcall #',slot-fun ,app))))
 
+(defun bind-gpipeline (name)
+  (%we.vk:set-current-pipeline name))
 
