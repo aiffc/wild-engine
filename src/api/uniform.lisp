@@ -18,33 +18,59 @@
   "generate struct body"
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (loop :for bd :in body
-	:for name := (first bd)
-	:for type := (second bd)
+	:for name := (getf bd :accessor)
+	:for type := (getf bd :type)
 	:collect (list name (convert-type type))))
 
-(defun gen-alloc-uniform (lst index)
+(defun class-convert-type (stype)
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (case stype
+    (:vec2 'we.math:vec2)
+    (:vec3 'we.math:vec3)
+    (:vec4 'we.math:vec4)
+    (:mat2 'we.math:mat2)
+    (:mat3 'we.math:mat3)
+    (:mat4 'we.math:mat4)
+    (t stype)))
+
+(defun gen-uniform-class (body)
+  "generate class body"
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (loop :for bd :in body
+	:for name := (getf bd :accessor)
+	:for ctype := (class-convert-type (getf bd :type))
+	:for initarg := (getf bd :initarg)
+	:for initform := (getf bd :initform)
+	:collect (list name
+		       :accessor name
+		       :initarg initarg
+		       :type ctype
+		       :initform initform)))
+
+(defun gen-alloc-uniform (lst)
   "generate body to single atom in struct"
   (declare (optimize (speed 3) (safety 0) (debug 0)))
-  (let ((symbol-type (second lst))
+  (let ((symbol-type (getf lst :type))
+	(symbol-name (getf lst :accessor))
 	(set-symbol (gensym)))
     (case symbol-type
-      (:vec2 (list set-symbol `(we.math:alloc-vec2 (nth ,index value))))
-      (:vec3 (list set-symbol `(we.math:alloc-vec3 (nth ,index value))))
-      (:vec4 (list set-symbol `(we.math:alloc-vec4 (nth ,index value))))
-      (:mat2 (list set-symbol `(we.math:alloc-mat2 (nth ,index value))))
-      (:mat3 (list set-symbol `(we.math:alloc-mat3 (nth ,index value))))
-      (:mat4 (list set-symbol `(we.math:alloc-mat4 (nth ,index value))))
-      (t (list set-symbol `(nth ,index value))))))
+      (:vec2 (list set-symbol `(we.math:alloc-vec2 (,symbol-name value))))
+      (:vec3 (list set-symbol `(we.math:alloc-vec3 (,symbol-name value))))
+      (:vec4 (list set-symbol `(we.math:alloc-vec4 (,symbol-name value))))
+      (:mat2 (list set-symbol `(we.math:alloc-mat2 (,symbol-name value))))
+      (:mat3 (list set-symbol `(we.math:alloc-mat3 (,symbol-name value))))
+      (:mat4 (list set-symbol `(we.math:alloc-mat4 (,symbol-name value))))
+      (t (list set-symbol `(,symbol-name value))))))
 
 (defun generate-uniform-to-c-body (body)
   "generate body to fill struct"
-  (loop :for i :from 0 :below (length body)
-	:collect (gen-alloc-uniform (nth i body) i)))
+  (loop :for bd :in body
+	:collect (gen-alloc-uniform bd)))
 
 (defun gen-set-body (alloc-body body)
   "generate body to set struct atom"
   (declare (optimize (speed 3) (safety 0) (debug 0)))
-  (let ((asymbol (mapcar #'first body))
+  (let ((asymbol (mapcar (lambda (bd) (getf bd :accessor)) body))
 	(rsymbol (mapcar #'first alloc-body)))
     (loop :for i :from 0 :below (length asymbol)
 	  :collect (list 'setf (nth i asymbol) (nth i rsymbol)))))
@@ -55,13 +81,15 @@
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (let* ((sbody (getf uargs :struct))            ;; get struct body
 	 (name (getf uargs :name))               ;; get struct name
-	 (struct-symbols (mapcar #'first sbody))
+	 (struct-symbols (mapcar (lambda (bd) (getf bd :accessor)) sbody))
 	 (uname (we.u:create-symbol 'c- name))
 	 (alloc-body (generate-uniform-to-c-body sbody))  ;; generate alloc body 
 	 (set-body (gen-set-body alloc-body sbody))       ;; generate set body
 	 (ucreate-fun (we.u:create-symbol 'create-uniform- name)))
     (push ucreate-fun (gethash layout-name *uniform-hash*))   ;; store uniform initialize functions
     `(progn
+       (defclass ,name ()
+	 (,@ (gen-uniform-class sbody)))
        (cffi:defcstruct (,name :class ,uname)
 	 ,@ (parser-struct sbody))
        (defmethod cffi:translate-into-foreign-memory (value (type ,uname) ptr)

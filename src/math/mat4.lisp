@@ -1,5 +1,15 @@
 (in-package :%wild-engine.math)
 
+(defun ismat4p (val)
+  (and (arrayp val)
+       (eql (length val) (* 4 4))
+       (every (lambda (num)
+		(typep num 'float))
+	      val)))
+
+(deftype mat4 ()
+  `(satisfies ismat4p))
+
 (cffi:defcstruct (mat4 :class cmat4)
   (mat :float :count 16))
 

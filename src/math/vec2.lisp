@@ -1,5 +1,15 @@
 (in-package :%wild-engine.math)
 
+(defun isvec2p (val)
+  (and (arrayp val)
+       (eql (length val) 2)
+       (every (lambda (num)
+		(typep num 'float))
+	      val)))
+
+(deftype vec2 ()
+  `(satisfies isvec2p))
+
 (cffi:defcstruct (vec2 :class cvec2)
   (x :float)
   (y :float))

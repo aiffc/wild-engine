@@ -11,9 +11,24 @@
     ((:uniform-buffer
       :name ubo
       :binding 0
-      :struct ((model :mat4)
-	       (view :mat4)
-	       (proj :mat4)))))
+      :struct ((:type :mat4
+		:accessor model
+		:initform (m4:make 1.0 2.0 3.0 0.0
+				   1.0 2.0 3.0 0.0
+				   1.0 2.0 3.0 0.0
+				   1.0 2.0 3.0 0.0))
+	       (:type :mat4
+		:accessor view
+		:initform (m4:make 3.0 2.0 3.0 0.0
+				   3.0 2.0 3.0 0.0
+				   3.0 2.0 3.0 0.0
+				   3.0 2.0 3.0 0.0))
+	       (:type :mat4
+		:accessor proj
+		:initform (m4:make 3.0 2.0 3.0 0.0
+				   3.0 2.0 3.0 0.0
+				   3.0 2.0 3.0 0.0
+				   3.0 2.0 3.0 0.0))))))
 
 (we.api:define-graphics-pipeline uniform (uniform-shader uniform)
   (:assembly
