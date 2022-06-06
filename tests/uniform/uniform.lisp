@@ -1,7 +1,7 @@
 (in-package :we.uniform)
 
-(%we.dbg:dbg-trace :app)
-;;(%we.dbg:dbg-untrace)
+;;(%we.dbg:dbg-trace :app :vk)
+(%we.dbg:dbg-untrace)
 
 (we.api:define-shader-stage uniform-shader ()
   (we.tu:*uniform-vert* :vertex)
@@ -74,7 +74,7 @@
 			     :clear-color #(0.0 0.0 0.0 1.0)
 			     :update-funs (ubo))
 	  (uset-ubo 'model (m4:rotation-from-axis-angle (v3:make 0.0 0.0 1.0) (incf uangle 0.01)))
-	  (we.api:bind-gpipeline 'uniform)
+	  (we.api:bind-gpipeline app 'uniform cmd)
 	  (we.api:set-viewport cmd)
 	  (we.api:set-scissor cmd)
 	  (we.api:set-vertex cmd vbuf)

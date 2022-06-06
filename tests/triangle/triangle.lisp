@@ -44,7 +44,7 @@
 			:pipefun (triangle))
     (we.api:with-main-loop ()
       (we.api:with-render (app cmd :clear-color #(0.0 0.0 0.0 1.0))
-	(we.api:bind-gpipeline 'triangle)
+	(we.api:bind-gpipeline app 'triangle cmd)
 	;; just use default value
 	(we.api:set-viewport cmd)
 	(we.api:set-scissor cmd)

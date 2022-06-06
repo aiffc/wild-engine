@@ -9,13 +9,26 @@
 ** run test
 #+BEGIN_SRC lisp
 (ql:quickload :wild-engine/tests)
-(in-package :we.win-test)
+;; window initialize
+(in-package :win-test)
 (win-test)
+;; draw triangle without vertex buffer
+(in-package :triangle)
+(triangle)
+;; vertex demo
+(in-package :vertex)
+(vertex)
+;; index buffer demo
+(in-package :index)
+(index)
+;; uniform buffer demo
+(in-package :uniform)
+(uniform)
 #+END_SRC
 
 *** run with debug
 #+BEGIN_SRC lisp
 (%we.dbg:dbg-trace :app :vk :app-high)
-(win-test)
+;; (run tests ....)
 #+END_SRC
 

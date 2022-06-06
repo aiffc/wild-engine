@@ -162,7 +162,7 @@
    #:map-uniform
    #:create-descriptor-size-info
    #:descriptor-pool-create-info
-   #:set-current-pipeline))
+   #:bind-pipeline))
 
 (defpackage :%wild-engine.core.app
   (:use #:cl)

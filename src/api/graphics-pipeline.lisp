@@ -104,6 +104,6 @@
 ;;   (let ((slot-fun (we.u:create-symbol 'gslot- name)))
 ;;     `(vk:cmd-bind-pipeline ,cmd :graphics (funcall #',slot-fun ,app))))
 
-(defun bind-gpipeline (name)
-  (%we.vk:set-current-pipeline name))
+(defun bind-gpipeline (app name cmd)
+  (%we.vk:bind-pipeline app name cmd))
 
