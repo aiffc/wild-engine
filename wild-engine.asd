@@ -51,6 +51,7 @@
 					     (:file "cmds")
 					     (:file "signal")
 					     (:file "uniform")
+					     (:file "texture")
 					     (:file "descriptor")
 					     (:file "layout")
 					     (:file "vertex-buffer")
@@ -80,6 +81,7 @@
 	       (:file "tests/triangle/triangle")
 	       (:file "tests/vertex/vertex")
 	       (:file "tests/index/index")
-	       (:file "tests/uniform/uniform"))
+	       (:file "tests/uniform/uniform")
+	       (:file "tests/image/image"))
   :description "Test system for wild-engine"
   :perform (test-op (op c) (symbol-call :rove :run c)))

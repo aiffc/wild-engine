@@ -53,3 +53,12 @@
    (:we.test.utils #:we.tu))
   (:export
    #:uniform))
+
+(defpackage :we.texture
+  (:use #:cl)
+  (:nicknames #:texture)
+  (:local-nicknames
+   (:wild-engine.api #:we.api)
+   (:we.test.utils #:we.tu))
+  (:export
+   #:texture))
