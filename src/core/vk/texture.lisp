@@ -218,7 +218,7 @@
       (gen-mipmaps app image width height mip-level)
       image)))
 
-(defun create-texture (app name path info-fun &optional (format :rgb))
+(defun create-texture (app name path info-fun &optional (format :rgba))
   "function used to create a image from path"
   (when (null format)
     (setf format :rgba))

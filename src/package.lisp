@@ -167,6 +167,7 @@
    #:create-image-properties
    #:create-texture
    #:get-texture-info
+   #:destroy-texture
    #:bind-pipeline))
 
 (defpackage :%wild-engine.core.app

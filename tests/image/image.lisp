@@ -50,10 +50,10 @@
    :ato nil))
 
 (we.api:define-vertex texture-vertex-data ()
-  (we.api:make-vertex :v #(-1.0 -1.0 0.0) :vt #(1.0 1.0 1.0))
-  (we.api:make-vertex :v #(1.0 -1.0 0.0) :vt #(0.0 1.0 1.0))
-  (we.api:make-vertex :v #(1.0 1.0 0.0) :vt #(1.0 0.0 1.0))
-  (we.api:make-vertex :v #(-1.0 1.0 0.0) :vt #(1.0 1.0 0.0)))
+  (we.api:make-vertex :v #(-1.0 -1.0 0.0) :vt #(1.0 1.0 1.0) :vn #(1.0 0.0 0.0))
+  (we.api:make-vertex :v #(1.0 -1.0 0.0) :vt #(0.0 1.0 1.0) :vn #(0.0 0.0 0.0))
+  (we.api:make-vertex :v #(1.0 1.0 0.0) :vt #(1.0 0.0 1.0) :vn #(0.0 1.0 0.0))
+  (we.api:make-vertex :v #(-1.0 1.0 0.0) :vt #(1.0 1.0 0.0) :vn #(1.0 1.0 0.0)))
 
 (we.api:define-index texture-index-data ()
   0 1 2 2 3 0)

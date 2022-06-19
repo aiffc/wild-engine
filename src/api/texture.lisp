@@ -44,7 +44,7 @@
   (let* ((image-name (getf info :name))
 	 (image-path (getf info :path))
 	 (format (getf info :format))
-	 (texture-layout (we.u:set-value info :layout :color-attachment-optimal))
+	 (texture-layout (we.u:set-value info :layout :shader-read-only-optimal))
 	 (texture-binding (getf info :binding))
 	 (texture-fun (we.u:create-symbol image-name '-texture))
 	 (texture-create-fun (we.u:create-symbol 'create-texture- image-name))

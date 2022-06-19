@@ -64,7 +64,8 @@
 					(chandle (%we.utils:app-handle app))
 					(queue-families (%we.utils:gpu-queue-families chandle))
 					(surface (%we.utils:surface chandle))
-					(gpu (%we.utils:gpu chandle)))
+					(gpu (%we.utils:gpu chandle))
+					(gpu-feature (%we.utils:gpu-features chandle)))
   (declare (ignore handle args))
   (%we.dbg:msg :app "create device : ->~%")
   (let* ((p-indexs (get-present-queue-family-indexs queue-families gpu surface))
@@ -82,6 +83,7 @@
     ;; check swapchain support
     (unless (find "VK_KHR_swapchain" all-extensions :test #'string=)
       (error 'swapchain-not-support))
+    (setf (vk:enabled-features create-info) gpu-feature)
     ;; check debug layer
     (when (%we.dbg:vk-debug-p)
       (when (find "VK_LAYER_KHRONOS_validation" all-layers :test #'string=)
