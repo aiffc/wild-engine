@@ -2,6 +2,38 @@
 
 (defparameter *texture-hash* (make-hash-table))
 
+(defun get-texture-info (app name
+			 &aux
+			   (val (gethash app *texture-hash*))
+			   (texture-info (find-by-key val name))
+			   (texture-sampler (getf texture-info :sampler))
+			   (texture-view (getf texture-info :image-view)))
+  (vk:make-descriptor-image-info
+   :image-view texture-view
+   :sampler texture-sampler))
+
+(defun create-image-properties (&rest args
+				&key
+				  (mip-levels 1)
+				  (tiling :optimal)
+				  (usage '(:transfer-src :transfer-dst :sampled))
+				  (samples :1)
+				  (propeties :device-local)
+				  &allow-other-keys)
+  (declare (optimize  (speed 3) (debug 0) (safety 0)))
+  (values
+   (vk:make-image-create-info
+    :image-type :2d
+    :mip-levels mip-levels
+    :array-layers 1
+    :tiling tiling
+    :initial-layout :undefined
+    :usage usage
+    :samples samples
+    :sharing-mode :exclusive)
+   propeties
+   args))            ;; use to dump
+
 (defmacro with-soil-image ((path data width height &optional (format :rgb)) &body body)
   "macro used to load image with soil"
   `(multiple-value-bind (,data ,width ,height)
@@ -145,7 +177,7 @@
 	       (vk:cmd-pipeline-barrier cmd nil nil (list barrary) '(:transfer) '(:fragment-shader))))
 	    (t (format t "unknow~%"))))))
 
-(defun create-image (app name sbuffer width height info-fun
+(defun create-image (app name sbuffer width height info-fun format
 		     &aux
 		       (chandle (%we.utils:app-handle app))
 		       (device (%we.utils:device chandle))
@@ -153,7 +185,13 @@
   "function use to create a vk image handle"
   (declare (optimize (speed 1) (safety 0) (debug 0))
 	   (integer width height))
-  (multiple-value-bind (create-info mem-properties) (funcall info-fun width height)
+  (multiple-value-bind (create-info mem-properties) (funcall info-fun)
+    (setf (vk:extent create-info) (vk:make-extent-3d :width width
+						     :height height
+						     :depth 1)
+	  (vk:format create-info) (case format
+				    (:rgb :r8g8b8-srgb)
+				    (:rgba :r8g8b8a8-srgb)))
     (let* ((image (check-result #'vk:create-image device create-info))
 	   (req-info (vk:get-image-memory-requirements device image))
 	   (alloc-info (vk:make-memory-allocate-info
@@ -182,12 +220,14 @@
 
 (defun create-texture (app name path info-fun &optional (format :rgb))
   "function used to create a image from path"
+  (when (null format)
+    (setf format :rgba))
   (with-soil-image (path data width height format)
     (let* ((format-size (if (eql format :rgb) 3 4))
 	   (image-size (* width height format-size)))
       (with-stage-buffer (sbuffer smemory app image-size :transfer-src '(:host-visible :host-coherent))
 	(map-memory app smemory data image-size)
-	(let ((image (create-image app name sbuffer width height info-fun)))
+	(let ((image (create-image app name sbuffer width height info-fun format)))
 	  (free-memory app smemory)
 	  (destroy-buffer app sbuffer)
 	  image)))))

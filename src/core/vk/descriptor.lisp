@@ -19,7 +19,7 @@
     (%we.dbg:msg :app "destroy descriptor pool ~a~%" pool)
     (vk:destroy-descriptor-pool device pool)))
 
-(defun alloc-descriptor-sets (app set-layout pool
+(defun alloc-descriptor-sets (app set-layout pool texture-infos
 			       &aux
 				 (chandle (%we.utils:app-handle app))
 				 (device (%we.utils:device chandle))
@@ -29,14 +29,29 @@
 			:descriptor-pool pool
 			:set-layouts (loop :repeat image-count
 					   :collect (nth 0 set-layout))))
-	   (sets (vk:allocate-descriptor-sets device alloc-info)))
+	   (sets (vk:allocate-descriptor-sets device alloc-info))
+	   (texture-infos (mapcar (lambda (fun)
+			       (multiple-value-bind (name info binding) (funcall fun app)
+				 (declare (ignore name))
+				 (vk:make-write-descriptor-set
+				  :dst-set nil
+				  :dst-binding binding
+				  :dst-array-element 0
+				  :descriptor-type :combined-image-sampler
+				  :image-info (list info))))
+			     texture-infos)))
       (%we.dbg:msg :app "alloc descriptor sets ~a~%" sets)
-      (loop :for i :from 0 :below image-count
-	    :for set := (nth i sets)
-	    :do (progn
-		  (let ((write-info (get-uniform-buffer-infos app set i)))
-		    (vk:update-descriptor-sets device write-info nil))))
-      sets)))
+      (labels ((bind-write-set (set)
+		 (mapcar (lambda (info)
+		      (setf (vk:dst-set info) set)
+		      info)
+		    texture-infos)))
+	(loop :for i :from 0 :below image-count
+	      :for set := (nth i sets)
+	      :do (progn
+		    (let ((write-info (append (get-uniform-buffer-infos app set i) (bind-write-set set))))
+		      (vk:update-descriptor-sets device write-info nil))))
+	sets))))
 
 (defun free-descriptor-sets (app sets pool
 			     &aux

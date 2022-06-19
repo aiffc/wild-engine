@@ -66,9 +66,10 @@
 		 	       (:file "graphics-pipeline")
 		 	       (:file "set")
 		 	       (:file "uniform")
+			       (:file "texture")
 		 	       (:file "descriptor")
 		 	       (:file "layout")
-		 	       (:file "vertex"))))))
+			       (:file "vertex"))))))
   :description ""
   :in-order-to ((test-op (test-op "wild-engine/tests"))))
 

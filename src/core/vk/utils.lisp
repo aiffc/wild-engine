@@ -71,6 +71,11 @@
     (we.u:memcpy (cffi:mem-aref data :pointer) obj size)
     (vk:unmap-memory device mem)))
 
+(defun find-by-key (lst name &optional (key nil))
+  (if key
+      (getf (nth (position name lst :key (lambda (a) (getf a :name)) :test #'eql) lst) key)
+      (nth (position name lst :key (lambda (a) (getf a :name)) :test #'eql) lst)))
+
 (defun find-memory (type properties mem-info)
   "function used to find memory by memory info and gpu properties"
   (let ((memory-types (vk:memory-types mem-info)))

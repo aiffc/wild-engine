@@ -81,7 +81,6 @@
 (defun parse-uniform-body (layout-name body
 			   &aux (uargs (rest body)))
   "function used to generate a struct and translate method"
-  (declare (optimize (speed 3) (debug 0) (safety 0)))
   (let* ((sbody (getf uargs :struct))            ;; get struct body
 	 (name (getf uargs :name))               ;; get struct name
 	 (binding (getf uargs :binding))
@@ -130,7 +129,7 @@
 	:collect (parse-uniform-body app arg)))
 
 (defun build-uniform-info (arg
-		   &aux (uarg (rest arg)))
+			   &aux (uarg (rest arg)))
   "generate a descriptor set create info for uniform buffer"
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (vk:make-descriptor-set-layout-binding

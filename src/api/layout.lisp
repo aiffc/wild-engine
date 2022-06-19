@@ -1,6 +1,6 @@
 (in-package :wild-engine.api)
 
-;; (define-layout test
+;; (define-layout test ()
 ;;     ((:uniform-buffer
 ;;       :name aa 
 ;;       :binding 0
@@ -9,8 +9,7 @@
 ;;      (:texture
 ;;       :name bb
 ;;       :binding 1
-;;       :image-info (:image-w 600     ;; image info create image handle and info here
-;; 		   :image-h 600))
+;;       :path "~/path-to-image")
 ;;      (:uniform-buffer
 ;;       :name cc
 ;;       :binding 2
@@ -27,12 +26,17 @@
   "ready to do"
   (let* ((layout-fun (we.u:create-symbol 'layout- name))
 	 (descriptor-fun (we.u:create-symbol 'descriptor- name))
-	 (uniform-buffers (collect-key body :uniform-buffer))
-	 (uniform-bodies (parse-uniform-bodies name uniform-buffers)))
+	 (uniform-infos (collect-key body :uniform-buffer))
+	 (uniform-bodies (parse-uniform-bodies name uniform-infos))
+	 (image-infos (collect-key body :texture))
+	 (image-bodies (parse-image-bodies name image-infos)))
     `(progn
        (eval-when (:compile-toplevel :execute :load-toplevel))
        ,@uniform-bodies
+       ,@image-bodies
        (defun ,descriptor-fun (app)
-	 (%we.vk:descriptor-pool-create-info app (generate-uniform-descriptor-info app ',uniform-buffers)))
+	 (%we.vk:descriptor-pool-create-info app (append (generate-uniform-descriptor-info app ',uniform-infos)
+							 (generate-texture-descriptor-info app ',image-infos))))
        (defun ,layout-fun ()
-	 (%we.vk:layout-create-info (generate-uniform-info ',uniform-buffers))))))
+	 (%we.vk:layout-create-info (append (generate-uniform-info ',uniform-infos)
+					    (generate-texture-info ',image-infos)))))))

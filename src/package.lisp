@@ -164,6 +164,9 @@
    #:map-uniform
    #:create-descriptor-size-info
    #:descriptor-pool-create-info
+   #:create-image-properties
+   #:create-texture
+   #:get-texture-info
    #:bind-pipeline))
 
 (defpackage :%wild-engine.core.app

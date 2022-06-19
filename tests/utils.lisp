@@ -22,6 +22,8 @@
 (defparameter *uniform-frag* (build-shader-path "uniform" "frag"))
 (defparameter *uniform-vert* (build-shader-path "uniform" "vert"))
 
+(defparameter *texture-frag* (build-shader-path "image" "frag"))
+(defparameter *texture-vert* (build-shader-path "image" "vert"))
 
 ;;(defparameter *triangle-vert*)
 

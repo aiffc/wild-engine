@@ -8,7 +8,9 @@
    #:*vertex-frag*
    #:*vertex-vert*
    #:*uniform-frag*
-   #:*uniform-vert*))
+   #:*uniform-vert*
+   #:*texture-frag*
+   #:*texture-vert*))
 
 (defpackage :we.win-test
   (:use #:cl)

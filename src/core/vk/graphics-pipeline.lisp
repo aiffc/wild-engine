@@ -221,7 +221,10 @@
    :render-pass render-pass
    :subpass 0))
 
-(defun create-graphics-pipeline (app name shaders create-fun &optional (layout nil) (descriptor nil)
+(defun create-graphics-pipeline (app name shaders create-fun &optional
+							       (layout nil)
+							       (descriptor nil)
+							       (texture-infos nil)
 				 &aux
 				   (chandle (%we.utils:app-handle app))
 				   (device (%we.utils:device chandle))
@@ -232,7 +235,7 @@
 	  (vk:layout create-info) playout)
     (let* ((pipeline (vk:create-graphics-pipelines device (list create-info) cache))
 	   (descriptor-pool (create-descriptor-pool app descriptor))
-	   (descriptor-sets (alloc-descriptor-sets app set-layout descriptor-pool)))
+	   (descriptor-sets (alloc-descriptor-sets app set-layout descriptor-pool texture-infos)))
       (%we.dbg:msg :app "create graphics pipeline ~a~%" pipeline)
       (push (list :name name
 		  :pipeline (nth 0 pipeline)
