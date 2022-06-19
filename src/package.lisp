@@ -112,12 +112,14 @@
    #:vk.signal
    #:signal-image-available
    #:signal-render-finish
-   #:vk.layout
-   #:layout
-   #:layout-descriptor-pool
-   #:layout-descriptor-set-layout
-   #:layout-descriptor-sets
-   #:layout-uniform-buffers
+   ;; #:vk.layout
+   ;; #:layout
+   ;; #:layout-descriptor-pool
+   ;; #:layout-descriptor-set-layout
+   ;; #:layout-descriptor-sets
+   ;; #:layout-uniform-buffers
+   #:vk.pipeline-cache
+   #:pipeline-cache
    #:app
    #:make-app
    #:destroy-app

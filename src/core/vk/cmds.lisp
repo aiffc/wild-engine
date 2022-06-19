@@ -118,7 +118,7 @@
 			(pipeline (slot-pipeline app name))
 			(playout (slot-pipeline app name :layout))
 			(sets (slot-pipeline app name :descriptor-sets)))
-  (when (and *current-pipeline* pipeline)
+  (when pipeline
     (vk:cmd-bind-pipeline cmd :graphics pipeline)
     (when (and playout sets)
       (vk:cmd-bind-descriptor-sets cmd :graphics

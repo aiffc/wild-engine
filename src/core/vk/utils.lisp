@@ -135,6 +135,32 @@
 	   ,@body
 	   (end-transfer ,app ,cmd))
 	 (destroy-transfer-pool device ,pool ,cmds)))))
+;; -----------------------------------------------------------------------
+;; (defclass vkbm ()
+;;   ((buffer
+;;     :initarg :buffer
+;;     :initform (cffi:null-pointer)
+;;     :accessor buffer)
+;;    (memory
+;;     :initarg :memory
+;;     :initform (cffi:null-pointer)
+;;     :accessor memory)))
+
+;; (define-condition type-not-vkbm (error)
+;;   ()
+;;   (:report (lambda (obj stream)
+;; 	     (declare (ignore obj))
+;; 	     (format stream "%destroy buffer error: type error"))))
+
+;; (defun %cerate-buffer (buffer memory)
+;;   (declare (optimize (speed 3) (debug 0) (safety 0)))
+;;   (make-instance 'vkbm :buffer buffer :memory memory))
+
+;; (defun %destroy-buffer (bm)
+;;   (when (not (typep bm 'vkbm))
+;;     (error 'type-not-vkbm))
+;;   ;; ready to do
+;;   )
 
 (defun create-buffer (app size usage properties &optional (stage-p nil)
 		      &aux

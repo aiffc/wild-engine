@@ -140,7 +140,15 @@
   (:documentation
    "used to store swapchain handle"))
 
-(defclass vk.render-pass (vk.swapchain)
+(defclass vk.pipeline-cache (vk.swapchain)
+  ((cache
+    :initarg :cache
+    :initform nil
+    :accessor pipeline-cache))
+  (:documentation
+   "pipeline cache"))
+
+(defclass vk.render-pass (vk.pipeline-cache)
   ((render-pass
     :initarg :render-pass
     :initform nil
