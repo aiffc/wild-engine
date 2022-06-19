@@ -1,7 +1,7 @@
 (in-package :we.texture)
 
-(%we.dbg:dbg-trace :app :vk)
-;;(%we.dbg:dbg-untrace)
+;;(%we.dbg:dbg-trace :app :vk)
+(%we.dbg:dbg-untrace)
 
 (we.api:define-shader-stage texture-shader ()
   (we.tu:*texture-vert* :vertex)
@@ -79,7 +79,7 @@
 			     :update-funs (ubo))
 	  (uset-ubo 'model (m4:rotation-from-axis-angle (v3:make 0.0 0.0 1.0) (incf uangle 0.01)))
 	  (we.api:bind-gpipeline app 'texture cmd)
-	  (we.api:set-viewport cmd)
+	  (we.api:set-viewport cmd :width 300.0 :height 300.0 :x 150.0 :y 150.0) 
 	  (we.api:set-scissor cmd)
 	  (we.api:set-vertex cmd vbuf)
 	  (we.api:set-index cmd ibuf)
