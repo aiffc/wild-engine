@@ -57,6 +57,8 @@
 			       		     (:file "layout")
 			       		     (:file "vertex-buffer")
 			       		     (:file "index-buffer")))
+			       (:module "model"
+				:components ((:file "model")))
 			       ;; ./src/core/app
 			       (:module "app"
 				:components ((:file "app")))))
@@ -69,7 +71,18 @@
 			       (:file "texture")
 		 	       (:file "descriptor")
 		 	       (:file "layout")
-			       (:file "vertex"))))))
+			       (:file "vertex")
+			       (:file "model")
+			       (:module "doc"
+				:components ((:file "app")
+					     (:file "graphics-pipeline")
+					     (:file "set")
+					     (:file "uniform")
+					     (:file "texture")
+					     (:file "descriptor")
+					     (:file "layout")
+					     (:file "vertex")
+					     (:file "model"))))))))
   :description ""
   :in-order-to ((test-op (test-op "wild-engine/tests"))))
 

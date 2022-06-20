@@ -57,6 +57,7 @@
     ptr))
 
 (defun vertex-size ()
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
   (cffi:foreign-type-size '(:struct vertex)))
 
 (defun vertex-input-stage ()

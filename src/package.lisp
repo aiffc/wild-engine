@@ -125,6 +125,14 @@
    #:destroy-app
    #:app-handle))
 
+(defpackage :%wild-engine.core.model
+  (:use #:cl)
+  (:nicknames #:%we.model)
+  (:local-nicknames
+   (:%wild-engine.debug #:%we.dbg))
+  (:export
+   #:load-model))
+
 (defpackage :%wild-engine.core.windows
   (:use #:cl)
   (:nicknames #:%we.win)
@@ -158,6 +166,8 @@
    #:create-vertex-buffer
    #:vertex->mem
    #:vertex
+   #:vertex-size
+   #:make-vertex
    #:create-index-buffer
    #:create-uniform-buffer
    #:destroy-uniform-buffer
@@ -202,4 +212,5 @@
    #:set-scissor
    #:set-vertex
    #:set-index
-   #:draw))
+   #:draw
+   #:define-model))

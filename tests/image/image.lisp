@@ -3,6 +3,10 @@
 ;;(%we.dbg:dbg-trace :app :vk)
 (%we.dbg:dbg-untrace)
 
+(defparameter *image-path* (concatenate 'string
+					(namestring (asdf:system-relative-pathname :wild-engine "tests/"))
+					"image/test.png"))
+
 (we.api:define-shader-stage texture-shader ()
   (we.tu:*texture-vert* :vertex)
   (we.tu:*texture-frag* :fragment))
@@ -25,7 +29,7 @@
      (:texture
       :name test-texture
       :binding 1
-      :path "/home/aif/test.jpg")))
+      :path *image-path*)))
 
 (we.api:define-graphics-pipeline texture (texture-shader texture)
   (:assembly
