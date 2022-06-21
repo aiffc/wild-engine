@@ -47,7 +47,7 @@
 	  :alpha-to-coverage-enable (we.u:set-value rargs :atc nil)
 	  :alpha-to-one-enable (we.u:set-value rargs :ato nil))))
 
-(defmacro define-graphics-pipeline (name (shaders layout) &body body)
+(defmacro define-graphics-pipeline (name (shaders) &body body)
   "
 ;; just support single pipeline now
 ;; body like arguments are all optioanal
@@ -76,34 +76,37 @@
   (let ((gpipeline-create-info-fun (we.u:create-symbol 'g- name '-create-info))
 	(gpipeline-create-fun (we.u:create-symbol 'createg- name))
 	(slot-fun (we.u:create-symbol 'gslot- name))
-	(layout-fun (we.u:create-symbol 'layout- layout))
+	(layout-fun (we.u:create-symbol 'layout- name))
+	(layout-body (second (assoc :layout body)))
 	(descriptor-fun (we.u:create-symbol 'descriptor- name))
-	(uniform-funs (gethash layout *uniform-hash*))
-	(texture-funs (gethash layout *texture-hash*))
-	(texture-info-funs (gethash layout *texture-info-hash*))
+	
 	(assembly-args (parser-assembly-args (assoc :assembly body)))
 	(rasterization-args (parser-rasterization-args (assoc :rasterization body)))
 	(multiple-sample-args (parser-multiple-sample-args (assoc :multiple-sample body)))
 	(shader-sym (gensym "shader")))
     `(progn
        (eval-when (:compile-toplevel :load-toplevel :execute))
+       (define-layout ,name () ,layout-body)
        (defun ,gpipeline-create-info-fun (app)
 	 (%we.vk:graphics-pipeline-create-info app
 					       ,@assembly-args
 					       ,@rasterization-args
 					       ,@multiple-sample-args))
-       (defun ,gpipeline-create-fun (app)
-	 (with-shaders (,shader-sym app ,shaders)
-	   (mapc #'(lambda (fun)
-		 (funcall fun app))
-	      ',uniform-funs)
-	   (mapc #'(lambda (fun)
-		 (funcall fun app))
-	      ',texture-funs)
-	   ;;(setf (gethash layout *uniform-hash*) nil)
-	   (%we.vk:create-graphics-pipeline app ',name ,shader-sym #',gpipeline-create-info-fun #',layout-fun #',descriptor-fun ',texture-info-funs)))
        (defun ,slot-fun (app)
-	 (%we.vk:get-gpipeline app ',name)))))
+	 (%we.vk:get-gpipeline app ',name))
+       ,(let ((uniform-funs (gethash name *uniform-hash*))
+	      (texture-funs (gethash name *texture-hash*))
+	      (texture-info-funs (gethash name *texture-info-hash*)))
+	  `(defun ,gpipeline-create-fun (app)
+	     (with-shaders (,shader-sym app ,shaders)
+	       (mapc #'(lambda (fun)
+		     (funcall fun app))
+		  ',uniform-funs)
+	       (mapc #'(lambda (fun)
+		     (funcall fun app))
+		  ',texture-funs)
+	       ;;(setf (gethash layout *uniform-hash*) nil)
+	       (%we.vk:create-graphics-pipeline app ',name ,shader-sym #',gpipeline-create-info-fun #',layout-fun #',descriptor-fun ',texture-info-funs)))))))
 
 ;; (defmacro bind-gpipeline (app cmd name)
 ;;   (let ((slot-fun (we.u:create-symbol 'gslot- name)))

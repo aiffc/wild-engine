@@ -25,5 +25,8 @@
 (defparameter *texture-frag* (build-shader-path "image" "frag"))
 (defparameter *texture-vert* (build-shader-path "image" "vert"))
 
+(defparameter *model-frag* (build-shader-path "model" "frag"))
+(defparameter *model-vert* (build-shader-path "model" "vert"))
+
 ;;(defparameter *triangle-vert*)
 

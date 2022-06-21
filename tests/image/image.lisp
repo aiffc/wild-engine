@@ -11,27 +11,26 @@
   (we.tu:*texture-vert* :vertex)
   (we.tu:*texture-frag* :fragment))
 
-(we.api:define-layout texture ()
-    ((:uniform-buffer
-      :name ubo
-      :binding 0
-      :struct ((:type :mat4
-		:accessor model
-		:initform (m4:rotation-from-axis-angle (v3:make 0.0 0.0 0.0) 45.0))
-	       (:type :mat4
-		:accessor view
-		:initform (m4:look-at (v3:make 0.0 0.0 1.0)
-				      (v3:make 2.0 2.0 2.0)
-				      (v3:make 0.0 0.0 0.0)))
-	       (:type :mat4
-		:accessor proj
-		:initform (rtg-math.projection:perspective 600.0 600.0 0.1 10.0 -45.0))))
-     (:texture
-      :name test-texture
-      :binding 1
-      :path *image-path*)))
-
-(we.api:define-graphics-pipeline texture (texture-shader texture)
+(we.api:define-graphics-pipeline texture (texture-shader)
+  (:layout
+   ((:uniform-buffer
+     :name ubo
+     :binding 0
+     :struct ((:type :mat4
+	       :accessor model
+	       :initform (m4:rotation-from-axis-angle (v3:make 0.0 0.0 0.0) 45.0))
+	      (:type :mat4
+	       :accessor view
+	       :initform (m4:look-at (v3:make 0.0 0.0 1.0)
+				     (v3:make 2.0 2.0 2.0)
+				     (v3:make 0.0 0.0 0.0)))
+	      (:type :mat4
+	       :accessor proj
+	       :initform (rtg-math.projection:perspective 600.0 600.0 0.1 10.0 -45.0))))
+    (:texture
+     :name test-texture
+     :binding 1
+     :path *image-path*)))
   (:assembly
    :topology :triangle-list)
   (:rasterization 
@@ -54,10 +53,10 @@
    :ato nil))
 
 (we.api:define-vertex texture-vertex-data ()
-  (we.api:make-vertex :v #(-1.0 -1.0 0.0) :vt #(1.0 1.0 1.0) :vn #(1.0 0.0 0.0))
-  (we.api:make-vertex :v #(1.0 -1.0 0.0) :vt #(0.0 1.0 1.0) :vn #(0.0 0.0 0.0))
-  (we.api:make-vertex :v #(1.0 1.0 0.0) :vt #(1.0 0.0 1.0) :vn #(0.0 1.0 0.0))
-  (we.api:make-vertex :v #(-1.0 1.0 0.0) :vt #(1.0 1.0 0.0) :vn #(1.0 1.0 0.0)))
+  (we.api:make-vertex :v #(-1.0 -1.0 0.0) :vn #(1.0 1.0 1.0) :vt #(1.0 0.0 0.0))
+  (we.api:make-vertex :v #(1.0 -1.0 0.0) :vn #(0.0 1.0 1.0) :vt #(0.0 0.0 0.0))
+  (we.api:make-vertex :v #(1.0 1.0 0.0) :vn #(1.0 0.0 1.0) :vt #(0.0 1.0 0.0))
+  (we.api:make-vertex :v #(-1.0 1.0 0.0) :vn #(1.0 1.0 0.0) :vt #(1.0 1.0 0.0)))
 
 (we.api:define-index texture-index-data ()
   0 1 2 2 3 0)

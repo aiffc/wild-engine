@@ -16,9 +16,9 @@
 	  :for t0 := (aref tcoords (aref face 0))
 	  :for t1 := (aref tcoords (aref face 1))
 	  :for t2 := (aref tcoords (aref face 2))
-	  :for nt0 := (vector (aref t0 0) (- 1.0 (aref t0 1)))
-	  :for nt1 := (vector (aref t1 0) (- 1.0 (aref t1 1)))
-	  :for nt2 := (vector (aref t2 0) (- 1.0 (aref t2 1)))
+	  :for nt0 := (vector (aref t0 0) (- 1.0 (aref t0 1)) 0.0)
+	  :for nt1 := (vector (aref t1 0) (- 1.0 (aref t1 1)) 0.0)
+	  :for nt2 := (vector (aref t2 0) (- 1.0 (aref t2 1)) 0.0)
 	  :do (progn
 		(vector-push-extend (%we.vk:make-vertex :v v0 :vt nt0 :vn #(1.0 1.0 1.0)) ret)
 		(vector-push-extend (%we.vk:make-vertex :v v1 :vt nt1 :vn #(1.0 1.0 1.0)) ret)

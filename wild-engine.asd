@@ -97,6 +97,7 @@
 	       (:file "tests/vertex/vertex")
 	       (:file "tests/index/index")
 	       (:file "tests/uniform/uniform")
-	       (:file "tests/image/image"))
+	       (:file "tests/image/image")
+	       (:file "tests/model/model"))
   :description "Test system for wild-engine"
   :perform (test-op (op c) (symbol-call :rove :run c)))

@@ -6,9 +6,8 @@
   (we.tu:*vertex-vert* :vertex)         ;; just use vertex shader
   (we.tu:*vertex-frag* :fragment))
 
-(we.api:define-layout index () ())
-
-(we.api:define-graphics-pipeline index (index-shader index)
+(we.api:define-graphics-pipeline index (index-shader)
+  (:layout ())
   (:assembly
    :topology :triangle-list)
   (:rasterization 

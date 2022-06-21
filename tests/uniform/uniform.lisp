@@ -7,8 +7,9 @@
   (we.tu:*uniform-vert* :vertex)
   (we.tu:*uniform-frag* :fragment))
 
-(we.api:define-layout uniform ()
-    ((:uniform-buffer
+(we.api:define-graphics-pipeline uniform (uniform-shader)
+  (:layout
+   ((:uniform-buffer
       :name ubo
       :binding 0
       :struct ((:type :mat4
@@ -22,8 +23,6 @@
 	       (:type :mat4
 		:accessor proj
 		:initform (rtg-math.projection:perspective 600.0 600.0 0.1 10.0 -45.0))))))
-
-(we.api:define-graphics-pipeline uniform (uniform-shader uniform)
   (:assembly
    :topology :triangle-list)
   (:rasterization 

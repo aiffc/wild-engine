@@ -10,7 +10,9 @@
    #:*uniform-frag*
    #:*uniform-vert*
    #:*texture-frag*
-   #:*texture-vert*))
+   #:*texture-vert*
+   #:*model-frag*
+   #:*model-vert*))
 
 (defpackage :we.win-test
   (:use #:cl)
@@ -64,3 +66,12 @@
    (:we.test.utils #:we.tu))
   (:export
    #:texture))
+
+(defpackage :we.model
+  (:use #:cl)
+  (:nicknames #:model)
+  (:local-nicknames
+   (:wild-engine.api #:we.api)
+   (:we.test.utils #:we.tu))
+  (:export
+   #:model-test))

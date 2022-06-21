@@ -7,9 +7,8 @@
   (we.tu:*vertex-vert* :vertex)
   (we.tu:*vertex-frag* :fragment))
 
-(we.api:define-layout vertex () ())
-
-(we.api:define-graphics-pipeline vertex (vertex-shader vertex)
+(we.api:define-graphics-pipeline vertex (vertex-shader)
+  (:layout ())
   (:assembly
    :topology :triangle-list)
   (:rasterization 

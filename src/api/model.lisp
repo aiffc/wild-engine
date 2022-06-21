@@ -2,14 +2,12 @@
 
 (defmacro define-model (name model-path)
   (let ((fun-name (we.u:create-symbol 'createm- name))
-	(path (eval `,model-path)))
+	(path model-path))
     `(progn
        (eval-when (:compile-toplevel :load-toplevel :execute))
        (defun ,fun-name (app)
 	 (let* ((model-data (%we.model:load-model ,path))
-		(size (length model-data))
-		(vsize (%we.vk:vertex-size))
-		(isize (cffi:foreign-type-size :uint32)))
+		(size (length model-data)))
 	   (cffi:with-foreign-objects ((vptr '(:struct %we.vk:vertex) size)
 				       (iptr :uint32 size))
 	     (loop :for i :from 0 :below size
