@@ -26,23 +26,12 @@
   (:assembly
    :topology :triangle-list)
   (:rasterization 
-   :clamp nil
-   :discard nil
    :polygon-mode :fill
    :cull-mode :back
    :front-face :clockwise
-   :bias nil
-   :bias-constant-factor 0f0
-   :bias-clamp 0f0
-   :bias-slope-factor 0f0
    :line-width 1.0)
   (:multiple-sample 
-   :sample-shading nil
-   :rasterization-samples :1
-   :min 0f0
-   :mask nil
-   :atc nil
-   :ato nil))
+   :rasterization-samples :1))
 
 (we.api:define-vertex uniform-vertex-data ()
   (we.api:make-vertex :v #(-1.0 -1.0 0.0) :vt #(1.0 1.0 1.0))

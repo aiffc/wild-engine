@@ -77,45 +77,34 @@
    :viewports (list
 	       (vk:make-viewport))))
 ;; ------------------------------------------------------------------------------
-(defun rasterization-state (depth-clamp-enable
-			    rasterizer-discard-enable
-			    polygon-mode
+(defun rasterization-state (polygon-mode
 			    cull-mode
 			    front-face
-			    depth-bias-enable
-			    depth-bias-constant-factor
-			    depth-bias-clamp
-			    depth-bias-slope-factor
 			    line-width)
   "set pipeline rasterization state, no support args for now"
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (vk:make-pipeline-rasterization-state-create-info
-   :depth-clamp-enable depth-clamp-enable
-   :rasterizer-discard-enable rasterizer-discard-enable
+   :depth-clamp-enable nil
+   :rasterizer-discard-enable nil
    :polygon-mode polygon-mode
    :cull-mode cull-mode
    :front-face front-face
-   :depth-bias-enable depth-bias-enable
-   :depth-bias-constant-factor depth-bias-constant-factor
-   :depth-bias-clamp depth-bias-clamp
-   :depth-bias-slope-factor depth-bias-slope-factor
+   :depth-bias-enable nil
+   :depth-bias-constant-factor 0f0
+   :depth-bias-clamp 0f0
+   :depth-bias-slope-factor 0f0
    :line-width line-width))
 ;; ------------------------------------------------------------------------------
-(defun multisample-state (sample-shading-enable
-			  rasterization-samples
-			  min-sample-shading
-			  sample-mask
-			  alpha-to-coverage-enable
-			  alpha-to-one-enable)
+(defun multisample-state (rasterization-samples)
   "set pipeline multisample state, no support args for now"
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (vk:make-pipeline-multisample-state-create-info
-   :sample-shading-enable sample-shading-enable
+   :sample-shading-enable nil
    :rasterization-samples rasterization-samples
-   :min-sample-shading min-sample-shading
-   :sample-mask sample-mask
-   :alpha-to-coverage-enable alpha-to-coverage-enable
-   :alpha-to-one-enable alpha-to-one-enable))
+   :min-sample-shading 0f0
+   :sample-mask nil
+   :alpha-to-coverage-enable nil
+   :alpha-to-one-enable nil))
 ;; ------------------------------------------------------------------------------
 (defun depth-stencil-state ()
   "set pipeline depth stencil state, no support args for now"
@@ -172,22 +161,11 @@
 (defun graphics-pipeline-create-info (app
 				      &key
 					(topology :triangle-list)
-					(depth-clamp-enable nil)
-					(rasterizer-discard-enable nil)
 					(polygon-mode nil)
 					(cull-mode nil)
 					(front-face nil)
-					(depth-bias-enable nil)
-					(depth-bias-constant-factor 0.0)
-					(depth-bias-clamp 0.0)
-					(depth-bias-slope-factor 0.0)
 					(line-width 0.0)
 					(rasterization-samples nil)
-					(sample-shading-enable nil)
-					(min-sample-shading 0.0)
-					(sample-mask nil)
-					(alpha-to-coverage-enable nil)
-					(alpha-to-one-enable nil)
 				      &aux
 					(chandle (%we.utils:app-handle app))
 					(render-pass (%we.utils:render-pass chandle)))
@@ -199,22 +177,11 @@
    :input-assembly-state (input-assembly-state topology)
    :tessellation-state (tessellation-state)
    :viewport-state (viewport-state)
-   :rasterization-state (rasterization-state depth-clamp-enable
-					     rasterizer-discard-enable
-					     polygon-mode
+   :rasterization-state (rasterization-state polygon-mode
 					     cull-mode
 					     front-face
-					     depth-bias-enable
-					     depth-bias-constant-factor
-					     depth-bias-clamp
-					     depth-bias-slope-factor
 					     line-width)
-   :multisample-state (multisample-state sample-shading-enable
-					 rasterization-samples
-					 min-sample-shading
-					 sample-mask
-					 alpha-to-coverage-enable
-					 alpha-to-one-enable)
+   :multisample-state (multisample-state rasterization-samples)
    :depth-stencil-state (depth-stencil-state)
    :color-blend-state (color-blend-state)
    :dynamic-state (dynamic-state)
