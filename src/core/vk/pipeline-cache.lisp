@@ -1,0 +1,15 @@
+(in-package :%wild-engine.core.vk)
+
+(defun vk->init-pipeline-cache (sys)
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (we.dbg:msg :app "create pipeline cache : ->~%")
+  (set-pipeline-cache sys (vk:create-pipeline-cache (get-device sys) (vk:make-pipeline-cache-create-info)))
+  (we.dbg:msg :app "~t ~a~%" (get-pipeline-cache sys)))
+
+(defun vk->destroy-pipeline-cache (sys)
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (we.dbg:msg :app "destroy pipeline cache: ->~%")
+  (when (get-pipeline-cache sys)
+    (we.dbg:msg :app "~t ~a~%" (get-pipeline-cache sys))
+    (vk:destroy-pipeline-cache (get-device sys) (get-pipeline-cache sys))
+    (set-pipeline-cache sys nil)))
