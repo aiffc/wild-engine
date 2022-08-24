@@ -11,7 +11,7 @@
 	       :opticl
 	       :alexandria
 	       :cl-soil
-	       :classimp
+	       ;;:classimp
 	       :closer-mop
 	       :defclass-std
 	       :alexandria)
@@ -48,6 +48,7 @@
 					     (:file "pipeline-cache")
 					     (:file "render-pass")
 					     (:file "frame-buffer")
+					     (:file "graphics-pipeline")
 					     (:file "buffer")
 					     (:file "init")))))
 			     (:module "control"

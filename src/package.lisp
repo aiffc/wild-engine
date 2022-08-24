@@ -73,10 +73,10 @@
    #:vk->init-all
    #:vk->destroy-all
    #:with-gcmd
-   #:define-index
-   #:create-triangle-pipeline
-   #:make-triangle-vertex
-   #:define-traignle-vertex))
+   #:defbuffer
+   #:defpipeline-layout
+   #:defgpipeline
+   #:withg-pipelines))
 
 (defpackage :we.ctrl
   (:use #:cl)
