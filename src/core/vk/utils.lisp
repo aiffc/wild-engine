@@ -55,10 +55,12 @@
 	  (t (we.dbg:msg :vk "unknow error~a ~a ~a~%" fn handle result)))
     (values handle result)))
 
-(defun find-memory (sys type properties)
+(defun find-memory (sys type properties
+		    &aux
+		      (mem-info (get-gpu-memory-properties sys)))
   "function used to find memory by memory info and gpu properties"
-  (let ((memory-types (vk:memory-types (get-gpu-memory-properties sys))))
-    (loop :for i :from 0 :below (vk:memory-type-count (get-gpu-memory-properties sys))
+  (let ((memory-types (vk:memory-types mem-info)))
+    (loop :for i :from 0 :below (vk:memory-type-count mem-info)
 	  :for shift := (ash 1 i)
 	  :for mem-p := (vk:property-flags (nth i memory-types))
 	  :do
@@ -119,4 +121,11 @@
        (end-transfer ,sys ,cmd)
        (destroy-transfer-pool ,sys ,pool ,cmd))))
 ;; -----------------------------------------------------------------------------------
-
+(defun map-memory (sys mem obj size
+		   &aux
+		     (device (get-device sys)))
+  "function used to map memory"
+  (cffi:with-foreign-object (data :pointer)
+    (vk:map-memory device mem 0 size data)
+    (we.u:memcpy (cffi:mem-aref data :pointer) obj size)
+    (vk:unmap-memory device mem)))
