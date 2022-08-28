@@ -76,7 +76,8 @@
    #:defbuffer
    #:defpipeline-layout
    #:defgpipeline
-   #:withg-pipelines))
+   #:withg-pipelines
+   #:with-index-buffer))
 
 (defpackage :we.ctrl
   (:use #:cl)
