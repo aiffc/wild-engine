@@ -146,30 +146,6 @@
 		    (slist (assoc key list)))
   (if slist (second slist) val))
 
-(defmacro defpipeline-layout (name ())
-  "ready to do"
-  (let* ((make-fun (we.u:create-symbol 'makepl- name))
-	 (destroy-fun (we.u:create-symbol 'destroypl- name))
-	 (with-mac (we.u:create-symbol 'withpl- name)))
-    `(progn
-       (eval-when (:compile-toplevel :load-toplevel :execute))
-       (defun ,make-fun (sys)
-	 (let ((layout (vk:create-pipeline-layout (get-device sys)
-				    (vk:make-pipeline-layout-create-info
-				     :set-layouts nil
-				     :push-constant-ranges nil))))
-	   (we.dbg:msg :app "~a: create graphics pipeline layout ~a~%" ',make-fun layout)
-	   layout))
-       (defun ,destroy-fun (sys layout)
-	 (we.dbg:msg :app "~a: destroy graphics pipeline layout ~a~%" ',destroy-fun layout)
-	 (vk:destroy-pipeline-layout (get-device sys) layout))
-       (defmacro ,with-mac ((val sys) &body wbody)
-       	 (let ((makeg (we.u:create-symbol 'makepl- ',name))
-       	       (destroyg (we.u:create-symbol 'destroypl- ',name)))
-       	   `(let ((,val (,makeg ,sys)))
-       	      ,@wbody
-       	      (,destroyg ,sys ,val)))))))
-
 (defmacro defgpipeline (name () &body body)
   "
 usage ->
@@ -258,3 +234,50 @@ usage ->
 		      `(withg-pipelines (,sys ,layout ,@rest-bindings) ,@body)
 		      `(progn ,@body))))))))
 
+;; ------------------------------------------------------------------------------
+(defmacro defpipeline-layout (name () &body body)
+  "ready to do"
+  (let* ((make-fun (we.u:create-symbol 'makepl- name))      ;; function used to create pipeline layout
+	 (dsl-info-fun (we.u:create-symbol '%makedsl- name))  ;; function used to make descriptor create info
+	 (make-dsl (we.u:create-symbol 'makedsl- name))       ;; function used to make descriptor set layout
+	 (destroy-fun (we.u:create-symbol 'destroypl- name))
+	 (with-mac (we.u:create-symbol 'withpl- name)))
+    `(progn
+       (eval-when (:compile-toplevel :load-toplevel :execute))
+       (defun ,dsl-info-fun ()
+	 (list ,@(loop :for i :from 0 :below (length body)
+		       :for bd := (nth i body)
+		       :collect `(vk:make-descriptor-set-layout-binding
+				  :binding ,i
+				  :descriptor-type ,(getf bd :type)
+				  :descriptor-count ,(getf bd :count)
+				  :stage-flags ,(getf bd :flags)
+				  :immutable-samplers ,(getf bd :samplers)))))
+       (defun ,make-dsl (sys)
+	 (let* ((create-info (vk:make-descriptor-set-layout-create-info
+			      :bindings (,dsl-info-fun)))
+		(layout (vk:create-descriptor-set-layout (get-device sys) create-info)))
+	   (we.dbg:msg :app "create descriptor set layout ~a~%" ',make-dsl layout)
+	   layout))
+       (defun ,make-fun (sys)
+	 (let* ((dsl ,(if body `(list (,make-dsl sys)) nil))
+		(layout (vk:create-pipeline-layout (get-device sys)
+						   (vk:make-pipeline-layout-create-info
+						    :set-layouts dsl
+						    :push-constant-ranges nil))))
+	   (we.dbg:msg :app "~a: create graphics pipeline layout ~a~%" ',make-fun layout)
+	   (values layout dsl)))
+       (defun ,destroy-fun (sys layout dsl)
+	 (when dsl
+	   (we.dbg:msg :app "~a: destroy descriptor layout ~a~%" ',destroy-fun dsl)
+	   (mapcar #'(lambda (l)
+		 (vk:destroy-descriptor-set-layout (get-device sys) l))
+	      dsl))
+	 (we.dbg:msg :app "~a: destroy graphics pipeline layout ~a~%" ',destroy-fun layout)
+	 (vk:destroy-pipeline-layout (get-device sys) layout))
+       (defmacro ,with-mac ((playout dsl sys) &body wbody)
+       	 (let ((makeg (we.u:create-symbol 'makepl- ',name))
+       	       (destroyg (we.u:create-symbol 'destroypl- ',name)))
+       	   `(multiple-value-bind (,playout ,dsl) (,makeg ,sys)
+	      ,@wbody
+	      (,destroyg ,sys ,playout ,dsl)))))))

@@ -89,6 +89,22 @@
   (declare (optimize (speed 3) (debug 0) (safety 0)))  
   (mapcar #'first bodies))
 
+(defun get-uniform-buffer (uniform)
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (first uniform))
+
+(defun get-uniform-memory (uniform)
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (second uniform))
+
+(defun get-uniform-buffer-by-index (uniforms index)
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (get-uniform-buffer (nth index uniforms)))
+
+(defun get-uniform-memory-by-index (uniforms index)
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (get-uniform-memory (nth index uniforms)))
+
 (defmacro defbuffer (name (&key (usage :uniform) (binding 0)) &body body)
   "
 usage ->
@@ -167,12 +183,40 @@ usage ->
 		       ;; destroy stage buffer here
 		       (we.vk::destroy-buffer sys sbuffer smemory)
 		       (values buffer memory size)))))
-	       (defmacro ,vdata-macro ((sys data buffer size) &body wbody)
+	       (defmacro ,vdata-macro ((buffer size sys data) &body wbody)
 		 (let ((vdata-fun (we.u:create-symbol 'createv- ',name))
 		       (memory (gensym)))
 		   `(multiple-value-bind (,buffer ,memory ,size) (,vdata-fun ,sys ,data)
 		      ,@wbody
-		      (we.vk::destroy-buffer ,sys ,buffer ,memory))))))))))
+		      (we.vk::destroy-buffer ,sys ,buffer ,memory)))))))
+       ,(when (eql usage :uniform)
+	  ;; todo
+	  (let ((uniform-create-fun (we.u:create-symbol 'createu- name))
+		(uniform-destroy-fun (we.u:create-symbol 'destryu- name))
+		(uniform-buffer-update-fun (we.u:create-symbol 'updateu- name))
+		(with-uniform (we.u:create-symbol 'withu- name)))
+	    `(progn
+	       (defun ,uniform-create-fun (sys count)
+		 (loop :for i :from 0 :below count
+		       :collect (multiple-value-bind (buffer memory)
+				    (create-buffer sys (cffi:foreign-type-size '(:struct ,name)) :uniform-buffer '(:host-visible :host-coherent))
+				  (list buffer memory))))
+	       (defun ,uniform-destroy-fun (sys uniforms)
+		 (loop :for uniform :in uniforms
+		       :for buffer := (we.vk::get-uniform-buffer uniform)
+		       :for memory := (we.vk::get-uniform-memory uniform)
+		       :do (destroy-buffer sys buffer memory)))
+	       (defun ,uniform-buffer-update-fun (sys uniforms index val)
+		 (let ((memory (we.vk::get-uniform-memory-by-index uniforms index)))
+		   (cffi:with-foreign-object (obj '(:struct ,name))
+		     (setf (cffi:mem-ref obj '(:struct ,name)) val)
+		     (map-memory sys memory obj (cffi:foreign-type-size '(:struct ,name))))))
+	       (defmacro ,with-uniform ((uniforms sys count) &body wbody)
+		 (let ((uniform-create-fun (we.u:create-symbol 'createu- ',name))
+		       (uniform-destroy-fun (we.u:create-symbol 'destryu- ',name)))
+		   `(let ((,uniforms (,uniform-create-fun ,sys ,count)))
+		      (progn ,@wbody)
+		      (,uniform-destroy-fun ,sys ,uniforms))))))))))
 
 
 (defun create-index-buffer (sys data &optional (data-type :uint32)
@@ -194,7 +238,7 @@ usage ->
 	(we.vk::destroy-buffer sys sbuffer smemory)
 	(values buffer memory data-size)))))
 
-(defmacro with-index-buffer ((sys data buffer size &optional (data-type :uint32)) &body body)
+(defmacro with-index-buffer ((buffer size sys data &optional (data-type :uint32)) &body body)
   (let ((memory (gensym)))
     `(multiple-value-bind (,buffer ,memory ,size) (create-index-buffer ,sys ,data ,data-type)
        ,@body

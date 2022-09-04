@@ -77,7 +77,10 @@
    #:defpipeline-layout
    #:defgpipeline
    #:withg-pipelines
-   #:with-index-buffer))
+   #:with-index-buffer
+   #:
+   #:defdescriptor-sets
+   #:defdescriptor))
 
 (defpackage :we.ctrl
   (:use #:cl)
