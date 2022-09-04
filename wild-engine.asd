@@ -50,6 +50,7 @@
 					     (:file "frame-buffer")
 					     (:file "graphics-pipeline")
 					     (:file "buffer")
+					     (:file "descriptor")
 					     (:file "init")))))
 			     (:module "control"
 			      :components

@@ -78,7 +78,6 @@
    #:defgpipeline
    #:withg-pipelines
    #:with-index-buffer
-   #:
    #:defdescriptor-sets
    #:defdescriptor))
 
