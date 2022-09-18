@@ -245,7 +245,6 @@ usage ->
     `(progn
        (eval-when (:compile-toplevel :load-toplevel :execute))
        (defun ,dsl-info-fun ()
-	 (format t "~a~%" ',body)
 	 (list ,@(loop :for i :from 0 :below (length body)
 		       :for bd := (nth i body)
 		       :collect `(vk:make-descriptor-set-layout-binding
