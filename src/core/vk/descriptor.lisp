@@ -37,6 +37,7 @@
   (let ((alloc-fun (we.u:create-symbol 'allocds- name))
 	(free-fun (we.u:create-symbol 'freeds- name))
 	(update-buffer-fun (we.u:create-symbol 'updateds-buffer- name))
+	(update-image-fun (we.u:create-symbol 'updateds-image- name))
 	(with-sets (we.u:create-symbol 'withds- name)))
     `(progn
        (eval-when (:execute :load-toplevel :compile-toplevel))
@@ -74,6 +75,24 @@
 			:descriptor-type type
 			:buffer-info (list buffer-info))))
 	   (we.dbg:msg :app "write buffer ~a to sets ~a ~%" buffer (nth index sets))
+	   (vk:update-descriptor-sets device (list write) nil)))
+       (defun ,update-image-fun (sys sets image
+				 &key
+				   (index 0)
+				   (binding 0)
+				   (array-element 0)
+				 &aux (device (get-device sys)))
+	 (let* ((image-info (vk:make-descriptor-image-info
+			     :sampler (we.vk::texture-sampler image)
+			     :image-view (we.vk::texture-view image)
+			     :image-layout :shader-read-only-optimal))
+		(write (vk:make-write-descriptor-set
+			:dst-set (nth index sets) 
+			:dst-binding binding
+			:dst-array-element array-element
+			:descriptor-type :combined-image-sampler
+			:image-info (list image-info))))
+	   (we.dbg:msg :app "write image ~a to sets ~a ~%" image (nth index sets))
 	   (vk:update-descriptor-sets device (list write) nil)))
        (defmacro ,with-sets ((sets sys pool layouts) &body wbody)
 	 (let ((alloc-fun (we.u:create-symbol 'allocds- ',name))

@@ -79,7 +79,8 @@
    #:withg-pipelines
    #:with-index-buffer
    #:defdescriptor-sets
-   #:defdescriptor))
+   #:defdescriptor
+   #:deftexture))
 
 (defpackage :we.ctrl
   (:use #:cl)
