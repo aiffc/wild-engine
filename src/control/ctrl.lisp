@@ -8,6 +8,7 @@
 			       (title "wild engine demo")
 			       (format :r8g8b8a8-srgb))
 			&body body)
+  "we system initial"
   `(sdl2:with-init (:everything)
      (let ((,sys (we.vk:vk->init-all ,w ,h ,x ,y ,title ,format)))
        (unwind-protect ,@body)

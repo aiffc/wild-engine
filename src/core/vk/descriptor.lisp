@@ -1,7 +1,18 @@
 (in-package :%wild-engine.core.vk)
 
 (defmacro defdescriptor (name (max-sets) &body body)
-  ;; todo add with macro
+  "
+usage ->
+   (defdescriptor descriptor (1)
+     (:type :uniform-buffer
+      :count 1)
+     (:type :combined-image-sampler
+      :count 1))
+usage export 
+  createdp-*name*
+  destroydp-*name*
+  withdp-*name*
+"
   (let ((pool-size-info (we.u:create-symbol name '-descriptor-pool-size))
 	(pool-create-fun (we.u:create-symbol 'createdp- name))
 	(pool-destroy-fun (we.u:create-symbol 'destroydp- name))
@@ -33,7 +44,16 @@
 	      (,pool-destroy-fun ,sys ,pool)))))))
 
 (defmacro defdescriptor-sets (name &optional (count 1))
-  ;; todo add with macro
+  "
+usage ->
+  (defdescriptor-sets set0 1)
+usage export 
+   allocds-*name*
+   freeds-*name*
+   updateds-buffer-*name*
+   updateds-image-*name*
+   withds-*name*
+"
   (let ((alloc-fun (we.u:create-symbol 'allocds- name))
 	(free-fun (we.u:create-symbol 'freeds- name))
 	(update-buffer-fun (we.u:create-symbol 'updateds-buffer- name))

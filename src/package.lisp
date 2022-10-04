@@ -95,6 +95,7 @@
    #:defmouse
    #:with-we-main-loop
    #:bind-gpipeline
+   #:bind-descriptor-sets
    #:set-viewport
    #:set-scissor
    #:set-vertex

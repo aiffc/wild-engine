@@ -236,7 +236,22 @@ usage ->
 
 ;; ------------------------------------------------------------------------------
 (defmacro defpipeline-layout (name () &body body)
-  "ready to do"
+  "
+usage ->
+  (defpipeline-layout name ()
+    (:type :uniform-buffer
+     :count 1
+     :flags :vertex
+     :samplers nil)
+    (:type :combined-image-sampler
+     :count 1
+     :flags :fragment))
+usage export 
+  makepl-*name*
+  makedsl-*name*
+  destroypl-*name*
+  withpl-*name*
+"
   (let* ((make-fun (we.u:create-symbol 'makepl- name))      ;; function used to create pipeline layout
 	 (dsl-info-fun (we.u:create-symbol '%makedsl- name))  ;; function used to make descriptor create info
 	 (make-dsl (we.u:create-symbol 'makedsl- name))       ;; function used to make descriptor set layout

@@ -4,6 +4,10 @@
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (vk:cmd-bind-pipeline cmd :graphics pipeline))
 
+(defun bind-descriptor-sets (cmd layout set)
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (vk:cmd-bind-descriptor-sets cmd :graphics layout 0 set nil))
+
 (defun set-viewport (cmd &key
 			   (x 0.0)
 			   (y 0.0)

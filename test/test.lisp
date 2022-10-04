@@ -50,11 +50,6 @@
    :count 1
    :flags :fragment))
 
-(defgpipeline test-pipeline ()                       ;; graphics pipeline defination
-  (:vertex *vert*)
-  (:fragment *frag*)
-  (:vertex-stage test-vertex))
-
 (defun update-uniform-buffer ()
   (setf (model *uniform-data*)
 	(m4:rotation-from-axis-angle (v3:make 0.0 0.0 1.0) (incf *uniform-angle* 0.01))))
@@ -98,7 +93,7 @@
 			(set-index cmd index-buffer)
 			(set-viewport cmd :width 800.0 :height 800.0)
 			(set-scissor cmd :width 800 :height 800)
-			(vk:cmd-bind-descriptor-sets cmd :graphics layout 0 sets nil)
+			(bind-descriptor-sets cmd layout sets)
 			(draw cmd :icount index-size :index-p t)))))))))))))
 
 

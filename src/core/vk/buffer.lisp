@@ -108,9 +108,22 @@
 (defmacro defbuffer (name (&key (usage :uniform) (binding 0)) &body body)
   "
 usage ->
-  (defbuffer test-vertex (:usage :vertex :binding 0)
+  (defbuffer name (:usage :vertex :binding 0)
     (pos :vec2)
     (color :vec3))
+export
+  make-*name*
+:usage unifrom export
+  createu-*name*
+  destroyu-*name*
+  updateu-*name*
+  createu-*name*
+  withu-*name*
+:usage vertex export
+  *name*-vertex-binding-info
+  *name*--vertex-attribute-info
+  createv-*name*
+  withv-*name*
 "
   (let* ((struct-cname (we.u:create-symbol 'c- name))   ;; struct c name
 	 (struct-atoms (get-struct-atoms body))         ;; struct member names
@@ -239,6 +252,7 @@ usage ->
 	(values buffer memory data-size)))))
 
 (defmacro with-index-buffer ((buffer size sys data &optional (data-type :uint32)) &body body)
+  "usage to create and destroy index buffer"
   (let ((memory (gensym)))
     `(multiple-value-bind (,buffer ,memory ,size) (create-index-buffer ,sys ,data ,data-type)
        ,@body

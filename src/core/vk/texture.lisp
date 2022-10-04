@@ -140,7 +140,13 @@
 
 
 (defmacro deftexture (name path format)
-  ;; todo 
+  "usage->
+  (deftexture test-texture *texture* :rgba)
+usage-export
+  createt-*name*
+  witht-*name*
+"
+  
   (let ((create-fun (we.u:create-symbol 'createt- name))
 	(with-macro (we.u:create-symbol 'witht- name)))
     `(progn
