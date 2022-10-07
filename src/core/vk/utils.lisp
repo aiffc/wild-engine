@@ -121,7 +121,7 @@
        (end-transfer ,sys ,cmd)
        (destroy-transfer-pool ,sys ,pool ,cmd))))
 ;; -----------------------------------------------------------------------------------
-(defun map-memory (sys mem obj size
+(defun map-memory (sys mem obj &optional (size %vk:+whole-size+)
 		   &aux
 		     (device (get-device sys)))
   "function used to map memory"

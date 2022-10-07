@@ -147,7 +147,7 @@ usage-export
   witht-*name*
 "
   
-  (let ((create-fun (we.u:create-symbol 'createt- name))
+  (let ((create-fun (we.u:create-symbol 'maket- name))
 	(with-macro (we.u:create-symbol 'witht- name)))
     `(progn
        (eval-when (:compile-toplevel :execute :load-toplevel))
@@ -168,7 +168,7 @@ usage-export
 		 (cl-soil:free-image-data data)
 		 texture-ptr)))))
        (defmacro ,with-macro ((image sys) &body wbody)
-	 (let ((create-fun (we.u:create-symbol 'createt- ',name)))
+	 (let ((create-fun (we.u:create-symbol 'maket- ',name)))
 	   `(multiple-value-bind (,image)
 		(,create-fun ,sys)
 	      (progn ,@wbody)

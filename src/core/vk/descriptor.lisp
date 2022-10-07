@@ -14,7 +14,7 @@ usage export
   withdp-*name*
 "
   (let ((pool-size-info (we.u:create-symbol name '-descriptor-pool-size))
-	(pool-create-fun (we.u:create-symbol 'createdp- name))
+	(pool-create-fun (we.u:create-symbol 'makedp- name))
 	(pool-destroy-fun (we.u:create-symbol 'destroydp- name))
 	(with-pool (we.u:create-symbol 'withdp- name)))
     `(progn
@@ -37,7 +37,7 @@ usage export
 	 (we.dbg:msg :app "destroy descriptor pool ~a ~a~%" ',pool-destroy-fun pool)
 	 (vk:destroy-descriptor-pool device pool))
        (defmacro ,with-pool ((pool sys) &body wbody)
-	 (let ((pool-create-fun (we.u:create-symbol 'createdp- ',name))
+	 (let ((pool-create-fun (we.u:create-symbol 'makedp- ',name))
 	       (pool-destroy-fun (we.u:create-symbol 'destroydp- ',name)))
 	   `(let ((,pool (,pool-create-fun ,sys)))
 	      (progn ,@wbody)
@@ -78,7 +78,7 @@ usage export
 				  &key
 				    (index 0)
 				    (offset 0)
-				    (range 0)
+				    (range %vk:+whole-size+)
 				    (binding 0)
 				    (array-element 0)
 				    (type :uniform-buffer)

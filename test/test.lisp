@@ -1,6 +1,5 @@
 (in-package :we.test)
 
-
 (defparameter *test-path* (namestring (asdf:system-relative-pathname :wild-engine "test/")))
 (defparameter *vert* (concatenate 'string *test-path* "vert.spv"))
 (defparameter *frag* (concatenate 'string *test-path* "frag.spv"))
@@ -41,6 +40,11 @@
 
 (defparameter *index-data* (vector 0 1 2 2 3 0))     ;; index buffer data
 
+(defgpipeline test-pipeline ()                       ;; graphics pipeline defination
+  (:vertex *vert*)
+  (:fragment *frag*)
+  (:vertex-stage test-vertex))
+
 (defpipeline-layout test-pipeline-layout ()
   (:type :uniform-buffer
    :count 1
@@ -51,6 +55,7 @@
    :flags :fragment))
 
 (defun update-uniform-buffer ()
+  (format t "~a~%" (m4:rotation-from-axis-angle (v3:make 0.0 0.0 1.0) (incf *uniform-angle* 0.01)))
   (setf (model *uniform-data*)
 	(m4:rotation-from-axis-angle (v3:make 0.0 0.0 1.0) (incf *uniform-angle* 0.01))))
 
@@ -71,7 +76,7 @@
       (witht-test-texture (texture sys)
 	(withv-test-vertex (vertex-buffer vertex-size sys *vertex-data*)  ;; vertex data instance
 	  (declare (ignore vertex-size))
-	  (with-index-buffer (index-buffer index-size sys *index-data*)
+	  (with-index-buffer (index-buffer sys *index-data*)
 	    ;; ready pipeline layuout
 	    (withpl-test-pipeline-layout (layout descriptor-layout sys) ;; pipeline layout initialize
 	      ;; ready descriptor and descriptor sets
@@ -94,7 +99,7 @@
 			(set-viewport cmd :width 800.0 :height 800.0)
 			(set-scissor cmd :width 800 :height 800)
 			(bind-descriptor-sets cmd layout sets)
-			(draw cmd :icount index-size :index-p t)))))))))))))
+			(draw cmd :buffer index-buffer :index-p t)))))))))))))
 
 
 

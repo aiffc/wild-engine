@@ -4,9 +4,9 @@
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (vk:cmd-bind-pipeline cmd :graphics pipeline))
 
-(defun bind-descriptor-sets (cmd layout set)
+(defun bind-descriptor-sets (cmd layout set &optional (offset nil))
   (declare (optimize (speed 3) (debug 0) (safety 0)))
-  (vk:cmd-bind-descriptor-sets cmd :graphics layout 0 set nil))
+  (vk:cmd-bind-descriptor-sets cmd :graphics layout 0 set offset))
 
 (defun set-viewport (cmd &key
 			   (x 0.0)
@@ -49,15 +49,14 @@
 (defun set-index (cmd buffer &key (offset 0))
   (declare (optimize (speed 3) (debug 0) (safety 0))
 	   (type integer offset))
-  (vk:cmd-bind-index-buffer cmd buffer offset :uint32))
+  (vk:cmd-bind-index-buffer cmd (we.vk:ibuffer buffer) offset :uint32))
 
 (defun draw (cmd &key
 		   (vcount 0)
-		   (icount 0)
+		   (buffer nil)
 		   (index-p nil))
-  (declare (optimize (speed 3) (debug 0) (safety 0))
-	   (type integer vcount icount))
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
   (if index-p
-      (vk:cmd-draw-indexed cmd icount 1 0 0 0)
+      (vk:cmd-draw-indexed cmd (we.vk:icount buffer) 1 0 0 0)
       (vk:cmd-draw cmd vcount 1 0 0)))
 

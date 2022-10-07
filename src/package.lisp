@@ -78,9 +78,15 @@
    #:defgpipeline
    #:withg-pipelines
    #:with-index-buffer
+   #:destroy-buffer
+   #:create-index-buffer
+   #:destroy-index-buffer
+   #:icount
+   #:ibuffer
    #:defdescriptor-sets
    #:defdescriptor
-   #:deftexture))
+   #:deftexture
+   #:destroy-image))
 
 (defpackage :we.ctrl
   (:use #:cl)

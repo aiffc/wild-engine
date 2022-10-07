@@ -182,7 +182,7 @@ usage ->
 	 (with-mac (we.u:create-symbol 'withg- name)))
     `(progn
        (eval-when (:compile-toplevel :load-toplevel :execute))
-       (defun ,make-fun (sys layout input-rate)
+       (defun ,make-fun (sys layout &optional (input-rate :vertex))
 	 (let* ((shader-stage (list (create-shader-stage sys ,vert-shader :vertex)
 				    (create-shader-stage sys ,frag-shader :fragment)))
 		(create-info (vk:make-graphics-pipeline-create-info
