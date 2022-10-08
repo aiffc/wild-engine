@@ -1,9 +1,13 @@
 (in-package :%wild-engine.core.vk)
 
-(defun get-present-mode ()
+(defun get-present-mode (sys
+			 &aux
+			   (present-modes (get-gpu-present-modes sys)))
   "not support select present-mode now ready to do"
   (declare (optimize (speed 3) (safety 0) (debug 0)))
-  :fifo-khr)
+  (cond ((member :mailbox-khr present-modes) :mailbox-khr)
+	((member :immediate-khr present-modes) :immediate-khr)
+	(t :fifo-khr)))
 
 (defun get-min-image-count (sys)
   (let* ((max-image-count (vk:max-image-count (get-gpu-surface-capabilities sys)))
@@ -82,7 +86,7 @@
 		       :image-sharing-mode :exclusive
 		       :pre-transform (get-pre-transform sys)
 		       :composite-alpha (get-composite-alpha sys)
-		       :present-mode (get-present-mode)
+		       :present-mode (get-present-mode sys)
 		       :clipped t))
 	 (swapchain (vk:create-swapchain-khr (get-device sys) create-info))
 	 (images (vk:get-swapchain-images-khr (get-device sys) swapchain))
