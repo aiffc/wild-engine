@@ -11,7 +11,7 @@
 	       :opticl
 	       :alexandria
 	       :cl-soil
-	       ;;:classimp
+	       :aw-assimp
 	       :closer-mop
 	       :defclass-std
 	       :alexandria)
@@ -68,6 +68,7 @@
 		:components ((:file "package")
 			     (:module "pbox"
 			      :components ((:file "resources")
+					   (:file "event")
 					   (:file "obj")
 					   (:file "player")
 					   (:file "pbox"))))))
