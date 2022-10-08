@@ -148,6 +148,13 @@
       (vk:queue-wait-idle (get-device-gqueue sys))
       (vk:queue-present-khr (get-device-pqueue sys) create-info))))
 
+(defun calc-fps ()
+  (incf *frame-count*)
+  (when (> (- (sdl2:get-ticks) *last-time*) 1000)
+    (we.dbg:msg :fps "fps: ~a~%" *frame-count*)
+    (setf *last-time* (sdl2:get-ticks)
+	  *frame-count* 0)))
+
 (defmacro with-present ((sys cmd image-index) &body body)
   `(let ((fence (nth (get-current-gcmd-index ,sys) (get-fences ,sys))))
      (vk:wait-for-fences (get-device ,sys) (list fence) t #xffffffff)
@@ -158,6 +165,7 @@
 				      (get-present-complete ,sys))))
        (vk:reset-fences (get-device ,sys) (list fence))
        (progn ,@body)
+       (we.vk::calc-fps)
        (let ((submit-infos (list (vk:make-submit-info
 				  :wait-semaphores (list (get-present-complete ,sys))
 				  :wait-dst-stage-mask '(:color-attachment-output)

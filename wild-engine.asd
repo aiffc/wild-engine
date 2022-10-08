@@ -66,7 +66,9 @@
   :description "Test system for wild-engine"
   :components ((:module "test"
 		:components ((:file "package")
-			     (:file "test")
-			     (:module "test2"
-			      :components ((:file "test2"))))))
+			     (:module "pbox"
+			      :components ((:file "resources")
+					   (:file "obj")
+					   (:file "player")
+					   (:file "pbox"))))))
   :perform (test-op (op c) (symbol-call :rove :run c)))

@@ -76,6 +76,18 @@
 	  (:mat4 '(:pointer (:struct we.math:mat4)))
 	  (t `(:pointer ,type)))))
 
+(defun get-atom-size (bd &aux
+			   (type (second bd)))
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (case type
+    (:vec2 (cffi:foreign-type-size '(:struct we.math:vec2)))
+    (:vec3 (cffi:foreign-type-size '(:struct we.math:vec3)))
+    (:vec4 (cffi:foreign-type-size '(:struct we.math:vec4)))
+    (:mat2 (cffi:foreign-type-size '(:struct we.math:mat2)))
+    (:mat3 (cffi:foreign-type-size '(:struct we.math:mat3)))
+    (:mat4 (cffi:foreign-type-size '(:struct we.math:mat4)))
+    (t (cffi:foreign-type-size type))))
+
 (defun build-cffi-struct-body (bodies dynamic-p)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (loop :for bd :in bodies
@@ -123,7 +135,12 @@
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (get-uniform-memory (nth index uniforms)))
 
-(defmacro defbuffer (name (&key (usage :uniform) (binding 0) (dynamic-p nil)) &body body)
+(defstruct dynamic-uniform
+  (buffer nil)
+  (memory nil)
+  (ptr nil))
+
+(defmacro defbuffer (name (&key (usage :uniform) (binding 0) (dynamic-p nil) (dynamic-count 1)) &body body)
   "
 usage ->
   (defbuffer name (:usage :vertex :binding 0)
@@ -142,6 +159,12 @@ export
   *name*--vertex-attribute-info
   createv-*name*
   withv-*name*
+:usage dynamic uniform export
+  alitnmentdu-*name*
+  createdu-*name*
+  destroydu-*name*
+  mapdu-*name*
+  updatedu-*name*
 "
   (let* ((struct-cname (we.u:create-symbol 'c- name))                 ;; struct c name
 	 (struct-atoms (get-struct-atoms body))                       ;; struct member names
@@ -161,11 +184,11 @@ export
 	 ,@struct-body)
        (defclass-std:defclass/std ,name ()
 	 (,struct-atoms))
-       (defun ,make-fun (&key ,@struct-atoms)
-	 (make-instance ',name ,@make-body))
        ,(unless dynamic-p
 	  ;; do not support for tranlate dynamic uniform buffer
 	  `(progn
+	     (defun ,make-fun (&key ,@struct-atoms)
+	       (make-instance ',name ,@make-body))
 	     (defmethod cffi:translate-from-foreign (ptr (type ,struct-cname))
 	       (cffi:with-foreign-slots (,struct-atoms ptr (:struct ,name))
 		 (,make-fun ,@ (we.u:gen-setf struct-initarg struct-atoms))))
@@ -226,48 +249,45 @@ export
        ,(when (eql usage :uniform)
 	  ;; todo
 	  (if dynamic-p
-	      (warn "not support")
-	      ;; (let* ((uniform-create-fun (we.u:create-symbol 'createdu- name))
-	      ;; 	     (uniform-destroy-fun (we.u:create-symbol 'destrydu- name))
-	      ;; 	     (unifrom-atom-true-type (%parser-body (first body)))
-	      ;; 	     (uniform-alloc-fun (we.u:create-symbol 'allocdu- name))
-	      ;; 	     (uniform-buffer-update-fun (we.u:create-symbol 'updatedu- name))
-	      ;; 	     (dynamic-alignment (cffi:foreign-type-size unifrom-atom-true-type)) 
-	      ;; 	     (with-uniform (we.u:create-symbol 'withdu- name)))
-	      ;; 	`(progn
-	      ;; 	   (defun ,uniform-alloc-fun (sys count
-	      ;; 			    &aux
-	      ;; 			      (min-aligment (vk:min-uniform-buffer-offset-alignment
-	      ;; 					     (vk:limits (get-gpu-memory-properties sys))))
-	      ;; 			      (alignment ,dynamic-alignment))
-	      ;; 	     (when (> minUboAlignment 0)
-	      ;; 	       (setf alignment (logand (+ alignment (- minUboAlignment 1))
-	      ;; 				       (lognot (- minUboAlignment 1)))))
-	      ;; 	     (cffi::%foreign-alloc (* count alignment)))
-	      ;; 	   (defun ,uniform-create-fun (sys count)
-	      ;; 	     (cffi:with-foreign-object (ret '(:struct ,name))
-	      ;; 	       ())
-
-	      ;; 	     (loop :for i :from 0 :below count
-	      ;; 		   :collect (multiple-value-bind (buffer memory)
-	      ;; 				(create-buffer sys (cffi:foreign-type-size '(:struct ,name)) :uniform-buffer '(:host-visible :host-coherent))
-	      ;; 			      (list buffer memory))))
-	      ;; 	   (defun ,uniform-destroy-fun (sys uniforms)
-	      ;; 	     (loop :for uniform :in uniforms
-	      ;; 		   :for buffer := (we.vk::get-uniform-buffer uniform)
-	      ;; 		   :for memory := (we.vk::get-uniform-memory uniform)
-	      ;; 		   :do (destroy-buffer sys buffer memory)))
-	      ;; 	   (defun ,uniform-buffer-update-fun (sys uniforms index val)
-	      ;; 	     (let ((memory (we.vk::get-uniform-memory-by-index uniforms index)))
-	      ;; 	       (cffi:with-foreign-object (obj '(:struct ,name))
-	      ;; 		 (setf (cffi:mem-ref obj '(:struct ,name)) val)
-	      ;; 		 (map-memory sys memory obj (cffi:foreign-type-size '(:struct ,name))))))
-	      ;; 	   (defmacro ,with-uniform ((uniforms sys count) &body wbody)
-	      ;; 	     (let ((uniform-create-fun (we.u:create-symbol 'createu- ',name))
-	      ;; 		   (uniform-destroy-fun (we.u:create-symbol 'destryu- ',name)))
-	      ;; 	       `(let ((,uniforms (,uniform-create-fun ,sys ,count)))
-	      ;; 		  (progn ,@wbody)
-	      ;; 		  (,uniform-destroy-fun ,sys ,uniforms))))))
+	      (let ((dynaimic-alignment (we.u:create-symbol 'alitnmentdu- name))  ;; dynamic uniform buffer just support one atom
+		    (atom-alignment (get-atom-size (first body)))
+		    (atom-name (first (first body)))
+		    (atom-type (second (%parser-body (first body))))
+		    (dynamic-uniform-buffer-alloc-fun (we.u:create-symbol 'createdu- name))
+		    (dynamic-uniform-buffer-free-fun (we.u:create-symbol 'destroydu- name))
+		    (dynamic-map-fun (we.u:create-symbol 'mapdu- name))
+		    (dyanmic-update-fun (we.u:create-symbol 'updatedu- name)))
+		`(progn
+		   (defun ,dynaimic-alignment (sys
+					       &aux
+						 (min-aligment (vk:min-uniform-buffer-offset-alignment
+								(vk:limits (we.vk::get-gpu-properties sys))))
+						 (alignment ,atom-alignment))
+		     (when (> min-aligment 0)
+		       (setf alignment (logand (+ alignment (- min-aligment 1))
+					       (lognot (- min-aligment 1)))))
+		     alignment)
+		   (defun ,dynamic-uniform-buffer-alloc-fun (sys)
+		     (let ((ptr (cffi:foreign-alloc '(:struct ,name))))
+		       (setf (cffi:foreign-slot-value ptr '(:struct ,name) ',atom-name)
+			     (cffi::%foreign-alloc (* ,dynamic-count (,dynaimic-alignment sys))))
+		       (multiple-value-bind (buffer memory)
+			   (we.vk::create-buffer sys (* ,dynamic-count (,dynaimic-alignment sys)) :uniform-buffer :host-visible)
+			 (we.vk::make-dynamic-uniform :buffer buffer :ptr ptr :memory memory))))
+		   (defun ,dynamic-map-fun (sys buffer)
+		     (we.vk::map-memory sys
+					(dynamic-uniform-memory buffer)
+					(cffi:foreign-slot-value (dynamic-uniform-ptr buffer) '(:struct ,name) ',atom-name)
+					(* ,dynamic-count (,dynaimic-alignment sys))))
+		   (defun ,dyanmic-update-fun (sys buffer index val)
+		     (setf (cffi:mem-ref (cffi:inc-pointer (cffi:foreign-slot-value (dynamic-uniform-ptr buffer) '(:struct ,name) ',atom-name)
+							   (* index (,dynaimic-alignment sys)))
+					 ',atom-type)
+			   val))
+		   (defun ,dynamic-uniform-buffer-free-fun (sys buffer)
+		     (cffi:foreign-free (cffi:foreign-slot-value (dynamic-uniform-ptr buffer) '(:struct ,name) ',atom-name))
+		     (cffi:foreign-free (dynamic-uniform-ptr buffer))
+		     (destroy-buffer sys (dynamic-uniform-buffer buffer) (dynamic-uniform-memory buffer)))))
 	      (let ((uniform-create-fun (we.u:create-symbol 'createu- name))
 		    (uniform-destroy-fun (we.u:create-symbol 'destryu- name))
 		    (uniform-buffer-update-fun (we.u:create-symbol 'updateu- name))

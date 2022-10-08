@@ -51,12 +51,14 @@ usage export
    allocds-*name*
    freeds-*name*
    updateds-buffer-*name*
+   updateds-dynamic-buffer-*name*
    updateds-image-*name*
    withds-*name*
 "
   (let ((alloc-fun (we.u:create-symbol 'allocds- name))
 	(free-fun (we.u:create-symbol 'freeds- name))
 	(update-buffer-fun (we.u:create-symbol 'updateds-buffer- name))
+	(update-dynamic-buffer-fun (we.u:create-symbol 'updateds-dynamic-buffer- name))
 	(update-image-fun (we.u:create-symbol 'updateds-image- name))
 	(with-sets (we.u:create-symbol 'withds- name)))
     `(progn
@@ -86,6 +88,27 @@ usage export
 	 ;;(format t "~a~%" (we.vk::get-uniform-buffer-by-index buffer index))
 	 (let* ((buffer-info (vk:make-descriptor-buffer-info
 			      :buffer (we.vk::get-uniform-buffer-by-index buffer index)
+			      :offset offset
+			      :range range))
+		(write (vk:make-write-descriptor-set
+			:dst-set (nth index sets) 
+			:dst-binding binding
+			:dst-array-element array-element
+			:descriptor-type type
+			:buffer-info (list buffer-info))))
+	   (we.dbg:msg :app "write buffer ~a to sets ~a ~%" buffer (nth index sets))
+	   (vk:update-descriptor-sets device (list write) nil)))
+       (defun ,update-dynamic-buffer-fun (sys sets buffer
+					  &key
+					    (index 0)
+					    (offset 0)
+					    (range %vk:+whole-size+)
+					    (binding 0)
+					    (array-element 0)
+					    (type :uniform-buffer-dynamic)
+					  &aux (device (get-device sys)))
+	 (let* ((buffer-info (vk:make-descriptor-buffer-info
+			      :buffer (we.vk::dynamic-uniform-buffer buffer)
 			      :offset offset
 			      :range range))
 		(write (vk:make-write-descriptor-set

@@ -2,6 +2,9 @@
 
 (defparameter *sys-hash* (make-hash-table))
 
+(defparameter *last-time* 0)
+(defparameter *frame-count* 0)
+
 (defmacro defsys-set (name)
   (let ((set-sym (we.u:create-symbol 'set- name)))
     `(defun ,set-sym (sym val)

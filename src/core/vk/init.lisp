@@ -3,6 +3,8 @@
 (defun vk->init-all (w h x y title format)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (let ((sys (gensym)))
+    (setf *last-time* 0
+	  *frame-count* 0)
     (vk->init-window sys w h x y title)
     (vk->init-instance sys)
     (vk->init-surface sys)

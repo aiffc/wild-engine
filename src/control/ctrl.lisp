@@ -36,20 +36,8 @@
      (defun ,name (,x ,y ,xrel ,yrel ,state)
        ,@body)))
 
-(defmacro with-we-main-loop ((&key
-				(keydown)
-				(keyup)
-				(mousemotion)) &body body)
+(defmacro with-we-main-loop (() &body body)
   `(sdl2:with-event-loop (:method :poll)
-     (:keydown (:keysym key)
-	       (when ,keydown
-     		 (funcall ,keydown key)))
-     (:keyup (:keysym key)
-	     (when ,keyup
-     	       (funcall ,keyup key)))
-     (:mousemotion (:x x :y y :xrel xrel :yrel yrel :state state)
-     		   (when ,mousemotion
-     		     (funcall ,mousemotion x y xrel yrel state)))
-     (:idle () (progn ,@body))
-     (:quit () t)))
+     (:quit () t)
+     ,@body))
 
