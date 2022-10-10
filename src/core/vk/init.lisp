@@ -1,6 +1,6 @@
 (in-package :%wild-engine.core.vk)
 
-(defun vk->init-all (w h x y title format)
+(defun vk->init-all (w h x y title format anti-aliasing)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (let ((sys (gensym)))
     (setf *last-time* 0
@@ -8,16 +8,18 @@
     (vk->init-window sys w h x y title)
     (vk->init-instance sys)
     (vk->init-surface sys)
-    (vk->init-gpu sys)
+    (vk->init-gpu sys anti-aliasing)
     (vk->init-device sys)
     (vk->init-swapchain sys format)
     (vk->init-cmd-pool sys)
     (vk->alloc-cmds sys)
     (vk->init-synchronization-primitives sys)
+    (when anti-aliasing
+      (vk->init-color-resources sys w h))
     (vk->init-depth-stencil sys w h)
     (vk->init-pipeline-cache sys)
-    (vk->init-render-pass sys)
-    (vk->init-frame-buffer sys w h)
+    (vk->init-render-pass sys anti-aliasing)
+    (vk->init-frame-buffer sys w h anti-aliasing)
     (set-current-gcmd-index sys 0)
     sys))
 
@@ -27,13 +29,15 @@
   ;; (destroy-all-buffer)
   )
 
-(defun vk->destroy-all (sys)
+(defun vk->destroy-all (sys anti-aliasing)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (free-resource)
   (vk->destroy-frame-buffer sys)
   (vk->destroy-render-pass sys)
   (vk->destroy-pipeline-cache sys)
   (vk->destroy-depth-stencil sys)
+  (when anti-aliasing
+    (vk->destroy-color-resources sys))
   (vk->destroy-synchronization-primitives sys)
   (vk->free-cmds sys)
   (vk->destroy-cmd-pool sys)

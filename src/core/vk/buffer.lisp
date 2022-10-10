@@ -232,20 +232,20 @@ export
 			 :do (setf (cffi:mem-aref ptr '(:struct ,name) i)
 				   (svref data i)))
 		   (multiple-value-bind (sbuffer smemory)
-		       (we.vk::create-buffer sys size :transfer-src '(:host-visible :host-coherent))
-		     (we.vk::map-memory sys smemory ptr size)
+		       (create-buffer sys size :transfer-src '(:host-visible :host-coherent))
+		     (map-memory sys smemory ptr size)
 		     (multiple-value-bind (buffer memory)
-			 (we.vk::create-buffer sys size '(:transfer-dst :vertex-buffer) :device-local)
-		       (we.vk::copy-buffer sys sbuffer buffer size)
+			 (create-buffer sys size '(:transfer-dst :vertex-buffer) :device-local)
+		       (copy-buffer sys sbuffer buffer size)
 		       ;; destroy stage buffer here
-		       (we.vk::destroy-buffer sys sbuffer smemory)
+		       (destroy-buffer sys sbuffer smemory)
 		       (values buffer memory size)))))
 	       (defmacro ,vdata-macro ((buffer size sys data) &body wbody)
 		 (let ((vdata-fun (we.u:create-symbol 'createv- ',name))
 		       (memory (gensym)))
 		   `(multiple-value-bind (,buffer ,memory ,size) (,vdata-fun ,sys ,data)
 		      ,@wbody
-		      (we.vk::destroy-buffer ,sys ,buffer ,memory)))))))
+		      (destroy-buffer ,sys ,buffer ,memory)))))))
        ,(when (eql usage :uniform)
 	  ;; todo
 	  (if dynamic-p
@@ -261,7 +261,7 @@ export
 		   (defun ,dynaimic-alignment (sys
 					       &aux
 						 (min-aligment (vk:min-uniform-buffer-offset-alignment
-								(vk:limits (we.vk::get-gpu-properties sys))))
+								(vk:limits (get-gpu-properties sys))))
 						 (alignment ,atom-alignment))
 		     (when (> min-aligment 0)
 		       (setf alignment (logand (+ alignment (- min-aligment 1))
@@ -272,10 +272,10 @@ export
 		       (setf (cffi:foreign-slot-value ptr '(:struct ,name) ',atom-name)
 			     (cffi::%foreign-alloc (* ,dynamic-count (,dynaimic-alignment sys))))
 		       (multiple-value-bind (buffer memory)
-			   (we.vk::create-buffer sys (* ,dynamic-count (,dynaimic-alignment sys)) :uniform-buffer :host-visible)
-			 (we.vk::make-dynamic-uniform :buffer buffer :ptr ptr :memory memory))))
+			   (create-buffer sys (* ,dynamic-count (,dynaimic-alignment sys)) :uniform-buffer :host-visible)
+			 (make-dynamic-uniform :buffer buffer :ptr ptr :memory memory))))
 		   (defun ,dynamic-map-fun (sys buffer)
-		     (we.vk::map-memory sys
+		     (map-memory sys
 					(dynamic-uniform-memory buffer)
 					(cffi:foreign-slot-value (dynamic-uniform-ptr buffer) '(:struct ,name) ',atom-name)
 					(* ,dynamic-count (,dynaimic-alignment sys))))
@@ -300,11 +300,11 @@ export
 				      (list buffer memory))))
 		   (defun ,uniform-destroy-fun (sys uniforms)
 		     (loop :for uniform :in uniforms
-			   :for buffer := (we.vk::get-uniform-buffer uniform)
-			   :for memory := (we.vk::get-uniform-memory uniform)
+			   :for buffer := (get-uniform-buffer uniform)
+			   :for memory := (get-uniform-memory uniform)
 			   :do (destroy-buffer sys buffer memory)))
 		   (defun ,uniform-buffer-update-fun (sys uniforms index val)
-		     (let ((memory (we.vk::get-uniform-memory-by-index uniforms index)))
+		     (let ((memory (get-uniform-memory-by-index uniforms index)))
 		       (cffi:with-foreign-object (obj '(:struct ,name))
 			 (setf (cffi:mem-ref obj '(:struct ,name)) val)
 			 (map-memory sys memory obj (cffi:foreign-type-size '(:struct ,name))))))
@@ -330,13 +330,13 @@ export
 	  :do (setf (cffi:mem-aref ptr data-type i)
 		    (svref data i)))
     (multiple-value-bind (sbuffer smemory)
-	(we.vk::create-buffer sys size :transfer-src '(:host-visible :host-coherent))
-      (we.vk::map-memory sys smemory ptr size)
+	(create-buffer sys size :transfer-src '(:host-visible :host-coherent))
+      (map-memory sys smemory ptr size)
       (multiple-value-bind (buffer memory)
-	  (we.vk::create-buffer sys size '(:transfer-dst :index-buffer) :device-local)
-	(we.vk::copy-buffer sys sbuffer buffer size)
+	  (create-buffer sys size '(:transfer-dst :index-buffer) :device-local)
+	(copy-buffer sys sbuffer buffer size)
 	;; destroy stage buffer here
-	(we.vk::destroy-buffer sys sbuffer smemory)
+	(destroy-buffer sys sbuffer smemory)
 	(make-instance 'index-buffer :buffer buffer :memory memory :count data-size)))))
 
 (defun destroy-index-buffer (sys index-buffer)

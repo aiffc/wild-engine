@@ -32,7 +32,7 @@
 (we.dbg:dbg-trace :fps)
 
 (defun pbox ()
-  (with-we-init (sys :w *map-width* :h *map-height* :x 0 :y 0 :title "test") ;; we initialize
+  (with-we-init (sys :w *map-width* :h *map-height* :x 0 :y 0 :title "test" :anti-aliasing t) ;; we initialize
     ;; ready buffers
     (init-game-obj sys)
     (draw-map sys)

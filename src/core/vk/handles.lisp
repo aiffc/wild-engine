@@ -47,6 +47,8 @@
 (defsys-get gpu-device-queue-family-properties)
 (defsys-set gpu-memory-properties)
 (defsys-get gpu-memory-properties)
+(defsys-set gpu-sample-count)
+(defsys-get gpu-sample-count)
 
 (defsys-set device)
 (defsys-get device)
@@ -118,5 +120,12 @@
 (defsys-get depth-image-view)
 (defsys-set depth-memory)
 (defsys-get depth-memory)
+
+(defsys-set color-image)
+(defsys-get color-image)
+(defsys-set color-memory)
+(defsys-get color-memory)
+(defsys-set color-image-view)
+(defsys-get color-image-view)
 
 (defparameter *descriptor-pool* nil)

@@ -44,6 +44,7 @@
 					     (:file "cmd-pool")
 					     (:file "cmds")
 					     (:file "synchronization-primitives")
+					     (:file "color-resources")
 					     (:file "depth-buffer")
 					     (:file "pipeline-cache")
 					     (:file "render-pass")

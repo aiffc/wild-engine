@@ -169,7 +169,7 @@
 				      (get-present-complete ,sys))))
        (vk:reset-fences (get-device ,sys) (list fence))
        (progn ,@body)
-       (we.vk::calc-fps)
+       (calc-fps)
        (let ((submit-infos (list (vk:make-submit-info
 				  :wait-semaphores (list (get-present-complete ,sys))
 				  :wait-dst-stage-mask '(:color-attachment-output)

@@ -85,9 +85,9 @@ usage export
 				    (array-element 0)
 				    (type :uniform-buffer)
 				  &aux (device (get-device sys)))
-	 ;;(format t "~a~%" (we.vk::get-uniform-buffer-by-index buffer index))
+	 ;;(format t "~a~%" (get-uniform-buffer-by-index buffer index))
 	 (let* ((buffer-info (vk:make-descriptor-buffer-info
-			      :buffer (we.vk::get-uniform-buffer-by-index buffer index)
+			      :buffer (get-uniform-buffer-by-index buffer index)
 			      :offset offset
 			      :range range))
 		(write (vk:make-write-descriptor-set
@@ -108,7 +108,7 @@ usage export
 					    (type :uniform-buffer-dynamic)
 					  &aux (device (get-device sys)))
 	 (let* ((buffer-info (vk:make-descriptor-buffer-info
-			      :buffer (we.vk::dynamic-uniform-buffer buffer)
+			      :buffer (dynamic-uniform-buffer buffer)
 			      :offset offset
 			      :range range))
 		(write (vk:make-write-descriptor-set
@@ -126,8 +126,8 @@ usage export
 				   (array-element 0)
 				 &aux (device (get-device sys)))
 	 (let* ((image-info (vk:make-descriptor-image-info
-			     :sampler (we.vk::texture-sampler image)
-			     :image-view (we.vk::texture-view image)
+			     :sampler (texture-sampler image)
+			     :image-view (texture-view image)
 			     :image-layout :shader-read-only-optimal))
 		(write (vk:make-write-descriptor-set
 			:dst-set (nth index sets) 

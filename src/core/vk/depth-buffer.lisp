@@ -40,7 +40,7 @@
 			     :tiling :optimal
 			     :initial-layout :undefined
 			     :usage :depth-stencil-attachment
-			     :samples :1
+			     :samples (get-gpu-sample-count sys)
 			     :sharing-mode :exclusive))
 	 (image (check-result #'vk:create-image (get-device sys) image-create-info))
 	 (req-info (vk:get-image-memory-requirements (get-device sys) image))

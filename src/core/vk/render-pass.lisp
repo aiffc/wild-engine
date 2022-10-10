@@ -1,36 +1,45 @@
 (in-package :%wild-engine.core.vk)
 
-(defun attachments (sys format)
+(defun attachments (sys format anti-aliasing)
   "attachments for render pass"
   (declare (optimize (speed 3) (debug 0) (safety 0)))
-  (list
+  (list*
    (vk:make-attachment-description
     :format format
-    :samples :1
+    :samples (get-gpu-sample-count sys)
     :load-op :clear
     :store-op :store
     :stencil-load-op :dont-care
     :stencil-store-op :dont-care
     :initial-layout :undefined
-    :final-layout :present-src-khr)
+    :final-layout (if anti-aliasing :color-attachment-optimal :present-src-khr))
    (vk:make-attachment-description
     :format (get-depth-format sys)
-    :samples :1
+    :samples (get-gpu-sample-count sys)
     :load-op :clear
     :store-op :dont-care
     :stencil-load-op :dont-care
     :stencil-store-op :dont-care
     :initial-layout :undefined
-    :final-layout :depth-stencil-attachment-optimal)))
+    :final-layout :depth-stencil-attachment-optimal)
+   (when anti-aliasing
+     (list (vk:make-attachment-description
+	    :format format
+	    :samples :1
+	    :load-op :dont-care
+	    :store-op :store
+	    :stencil-load-op :dont-care
+	    :stencil-store-op :dont-care
+	    :initial-layout :undefined
+	    :final-layout :present-src-khr)))))
 
-(defun subpasses ()
+(defun subpasses (anti-aliasing)
   "subpass for render pass"
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (list
    (vk:make-subpass-description
     :pipeline-bind-point :graphics
     :input-attachments nil
-    :resolve-attachments nil
     :preserve-attachments nil
     :color-attachments (list
 			(vk:make-attachment-reference
@@ -39,7 +48,12 @@
     :depth-stencil-attachment (list
     			       (vk:make-attachment-reference
     				:attachment 1
-    				:layout :depth-stencil-attachment-optimal)))))
+    				:layout :depth-stencil-attachment-optimal))
+    :resolve-attachments (when anti-aliasing
+			   (list
+			    (vk:make-attachment-reference
+			     :attachment 2
+			     :layout :color-attachment-optimal))))))
 
 (defun dependencies ()
   "dependencies for render pass"
@@ -55,13 +69,13 @@
     :dependency-flags :by-region)))
 
 
-(defun vk->init-render-pass (sys)
+(defun vk->init-render-pass (sys anti-aliasing)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (we.dbg:msg :app "create render-pass : ->~%")
   (let ((create-info (vk:make-render-pass-create-info
 		      :dependencies (dependencies)
-		      :subpasses (subpasses)
-		      :attachments (attachments sys (get-swapchain-format sys)))))
+		      :subpasses (subpasses anti-aliasing)
+		      :attachments (attachments sys (get-swapchain-format sys) anti-aliasing))))
     (set-render-pass sys (check-result #'vk:create-render-pass (get-device sys) create-info))
     (we.dbg:msg :app "~2tcreate render pass [~a]~%" (get-render-pass sys))))
 

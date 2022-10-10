@@ -78,12 +78,12 @@
    :depth-bias-slope-factor 0f0
    :line-width line-width))
 ;; ------------------------------------------------------------------------------
-(defun multisample-state (rasterization-samples)
+(defun multisample-state (sys)
   "set pipeline multisample state, no support args for now"
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (vk:make-pipeline-multisample-state-create-info
    :sample-shading-enable nil
-   :rasterization-samples rasterization-samples
+   :rasterization-samples (get-gpu-sample-count sys)
    :min-sample-shading 0f0
    :sample-mask nil
    :alpha-to-coverage-enable nil
@@ -173,8 +173,6 @@ usage ->
 	 (cull-mode (get-value body :cull-mode :back))
 	 (front-face (get-value body :front-face :clockwise))
 	 (line-width (get-value body :line-width 1.0))
-	 ;; multisample-state
-	 (rasterization-samples (get-value body :rasterization-samples :1))
 	 ;; functions 
 	 (make-fun (we.u:create-symbol 'makeg- name))
 	 (destroy-fun (we.u:create-symbol 'destroyg- name))
@@ -199,7 +197,7 @@ usage ->
 									,cull-mode
 									,front-face
 									,line-width)
-			      :multisample-state (multisample-state ,rasterization-samples)
+			      :multisample-state (multisample-state sys)
 			      :depth-stencil-state (depth-stencil-state)
 			      :color-blend-state (color-blend-state)
 			      :dynamic-state (dynamic-state)

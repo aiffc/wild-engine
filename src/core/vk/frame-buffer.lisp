@@ -1,6 +1,6 @@
 (in-package :%wild-engine.core.vk)
 
-(defun vk->init-frame-buffer (sys w h)
+(defun vk->init-frame-buffer (sys w h anti-aliasing)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (we.dbg:msg :app "create framebuffer : ->~%")
   (set-frame-buffers sys
@@ -9,7 +9,11 @@
 				    (get-device sys)
 				    (vk:make-framebuffer-create-info
 				     :render-pass (get-render-pass sys)
-				     :attachments (list iv (get-depth-image-view sys))
+				     :attachments (if anti-aliasing
+						       (list (get-color-image-view sys)
+							     (get-depth-image-view sys)
+							     iv)
+						       (list iv (get-depth-image-view sys)))
 				     :width w
 				     :height h
 				     :layers 1))))

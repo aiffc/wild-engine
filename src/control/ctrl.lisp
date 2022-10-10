@@ -6,13 +6,14 @@
 			       (x 0)
 			       (y 0)
 			       (title "wild engine demo")
-			       (format :r8g8b8a8-srgb))
+			       (format :r8g8b8a8-srgb)
+			       (anti-aliasing nil))
 			&body body)
   "we system initial"
   `(sdl2:with-init (:everything)
-     (let ((,sys (we.vk:vk->init-all ,w ,h ,x ,y ,title ,format)))
+     (let ((,sys (we.vk:vk->init-all ,w ,h ,x ,y ,title ,format ,anti-aliasing)))
        (unwind-protect ,@body)
-       (we.vk:vk->destroy-all ,sys))))
+       (we.vk:vk->destroy-all ,sys ,anti-aliasing))))
 
 (defmacro defkey-down (name (key) &body body)
   (let ((ksym (gensym)))

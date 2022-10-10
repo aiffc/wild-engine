@@ -5,7 +5,7 @@
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (first gpus))
 
-(defun vk->init-gpu (sys)
+(defun vk->init-gpu (sys anti-aliasing)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (we.dbg:msg :app "pickup gpu: -> ~%")
   (let* ((gpus (vk:enumerate-physical-devices (get-instance sys)))
@@ -18,7 +18,20 @@
       (set-gpu-features sys (vk:get-physical-device-features gpu))
       (set-gpu-properties sys (vk:get-physical-device-properties gpu))
       (set-gpu-device-queue-family-properties sys (vk:get-physical-device-queue-family-properties gpu))
-      (set-gpu-memory-properties sys (vk:get-physical-device-memory-properties gpu)))
+      (set-gpu-memory-properties sys (vk:get-physical-device-memory-properties gpu))
+      (if anti-aliasing
+	  (let* ((gpu-limit (vk:limits (get-gpu-properties sys)))
+		 (sampler-flag (intersection (vk:framebuffer-color-sample-counts gpu-limit)
+					     (vk:framebuffer-depth-sample-counts gpu-limit))))
+	    (set-gpu-sample-count sys
+				  (cond ((member :64 sampler-flag) :64)
+					((member :32 sampler-flag) :32)
+					((member :16 sampler-flag) :16)
+					((member :8 sampler-flag) :8)
+					((member :4 sampler-flag) :4)
+					((member :2 sampler-flag) :2)
+					(t :1))))
+	  (set-gpu-sample-count sys :1)))
     (we.dbg:msg :app "~2tselect gpu [~a ~a] ~%" gpu (vk:device-name (get-gpu-properties sys)))))
 
 (defun vk->destroy-gpu (sys)
@@ -32,5 +45,6 @@
     (set-gpu-features sys nil)
     (set-gpu-properties sys nil)
     (set-gpu-device-queue-family-properties sys nil)
-    (set-gpu-memory-properties sys nil)))
+    (set-gpu-memory-properties sys nil)
+    (set-gpu-sample-count sys nil)))
 
