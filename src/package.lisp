@@ -72,6 +72,10 @@
   (:export
    #:vk->init-all
    #:vk->destroy-all
+   #:vbuffer-buffer
+   #:vbuffer-size
+   #:ibuffer-buffer
+   #:ibuffer-size
    #:with-gcmd
    #:defbuffer
    #:defpipeline-layout
@@ -81,6 +85,7 @@
    #:destroy-buffer
    #:create-index-buffer
    #:destroy-index-buffer
+   #:destroy-vkbuffer
    #:icount
    #:ibuffer
    #:defdescriptor-sets

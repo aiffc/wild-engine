@@ -1,2 +1,4 @@
-(defpackage :pbox
-  (:use #:cl #:we.ctrl #:we.vk #:we.u))
+(defpackage :test.util
+  (:use #:cl)
+  (:export
+   #:make-shader-path))

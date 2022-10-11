@@ -1,5 +1,17 @@
 (in-package :%wild-engine.core.vk)
 
+(defstruct vkbuffer
+  (buffer nil)
+  (memory nil))
+
+(defstruct vbuffer
+  (buffer nil) ;; vkbuffer
+  (size 0))
+
+(defstruct ibuffer
+  (buffer nil)
+  (size 0))
+
 (defun create-buffer (sys size usage properties
 		      &aux
 			(device (get-device sys)))
@@ -23,15 +35,15 @@
     (we.dbg:msg :app "alloc memory ~a~%" memory)
     (vk:bind-buffer-memory device buffer memory 0)
     ;; stage buffer and memory free in self function
-    (values buffer memory)))
+    (values (make-vkbuffer :buffer buffer :memory memory))))
 
-(defun destroy-buffer (sys buffer memory
+(defun destroy-buffer (sys buffer
 		       &aux
 			 (device (get-device sys)))
-  (we.dbg:msg :app "free memory ~a~%" memory)
-  (vk:free-memory device memory)
-  (we.dbg:msg :app "destroy buffer ~a~%" buffer)
-  (vk:destroy-buffer device buffer))
+  (we.dbg:msg :app "free memory ~a~%" (vkbuffer-memory buffer))
+  (vk:free-memory device (vkbuffer-memory buffer))
+  (we.dbg:msg :app "destroy buffer ~a~%" (vkbuffer-buffer buffer))
+  (vk:destroy-buffer device (vkbuffer-buffer buffer)))
 
 (defun copy-buffer (sys src dst size)
   "function used to copy buffer from src to dst"
@@ -129,16 +141,16 @@
 
 (defun get-uniform-buffer-by-index (uniforms index)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
-  (get-uniform-buffer (nth index uniforms)))
+  (vkbuffer-buffer (nth index uniforms)))
 
 (defun get-uniform-memory-by-index (uniforms index)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
-  (get-uniform-memory (nth index uniforms)))
+  (vkbuffer-memory (nth index uniforms)))
 
 (defstruct dynamic-uniform
   (buffer nil)
-  (memory nil)
   (ptr nil))
+
 
 (defmacro defbuffer (name (&key (usage :uniform) (binding 0) (dynamic-p nil) (dynamic-count 1)) &body body)
   "
@@ -201,7 +213,8 @@ export
 	  (let ((vbind-info-fun (we.u:create-symbol name '-vertex-binding-info))
 		(vattr-info-fun (we.u:create-symbol name '-vertex-attribute-info))
 		(vdata-fun (we.u:create-symbol 'createv- name))
-		(vdata-macro (we.u:create-symbol 'withv- name)))
+		;;(vdata-macro (we.u:create-symbol 'withv- name))
+		)
 	    `(progn
 	       (defun ,vbind-info-fun (&optional (input-rate :vertex))
 		 (list (vk:make-vertex-input-binding-description
@@ -231,21 +244,22 @@ export
 		   (loop :for i :from 0 :below data-size
 			 :do (setf (cffi:mem-aref ptr '(:struct ,name) i)
 				   (svref data i)))
-		   (multiple-value-bind (sbuffer smemory)
+		   (multiple-value-bind (sbuffer)
 		       (create-buffer sys size :transfer-src '(:host-visible :host-coherent))
-		     (map-memory sys smemory ptr size)
-		     (multiple-value-bind (buffer memory)
+		     (map-memory sys (vkbuffer-memory sbuffer) ptr size)
+		     (multiple-value-bind (buffer)
 			 (create-buffer sys size '(:transfer-dst :vertex-buffer) :device-local)
-		       (copy-buffer sys sbuffer buffer size)
+		       (copy-buffer sys (vkbuffer-buffer sbuffer) (vkbuffer-buffer buffer) size)
 		       ;; destroy stage buffer here
-		       (destroy-buffer sys sbuffer smemory)
-		       (values buffer memory size)))))
-	       (defmacro ,vdata-macro ((buffer size sys data) &body wbody)
-		 (let ((vdata-fun (we.u:create-symbol 'createv- ',name))
-		       (memory (gensym)))
-		   `(multiple-value-bind (,buffer ,memory ,size) (,vdata-fun ,sys ,data)
-		      ,@wbody
-		      (destroy-buffer ,sys ,buffer ,memory)))))))
+		       (destroy-buffer sys sbuffer)
+		       (make-vbuffer :buffer buffer :size size)))))
+	       ;; (defmacro ,vdata-macro ((buffer sys data) &body wbody)
+	       ;; 	 (let ((vdata-fun (we.u:create-symbol 'createv- ',name))
+	       ;; 	       (memory (gensym)))
+	       ;; 	   `(multiple-value-bind (,buffer ,memory ,size) (,vdata-fun ,sys ,data)
+	       ;; 	      ,@wbody
+	       ;; 	      (destroy-buffer ,sys ,buffer ,memory))))
+	       )))
        ,(when (eql usage :uniform)
 	  ;; todo
 	  (if dynamic-p
@@ -271,14 +285,14 @@ export
 		     (let ((ptr (cffi:foreign-alloc '(:struct ,name))))
 		       (setf (cffi:foreign-slot-value ptr '(:struct ,name) ',atom-name)
 			     (cffi::%foreign-alloc (* ,dynamic-count (,dynaimic-alignment sys))))
-		       (multiple-value-bind (buffer memory)
+		       (multiple-value-bind (buffer)
 			   (create-buffer sys (* ,dynamic-count (,dynaimic-alignment sys)) :uniform-buffer :host-visible)
-			 (make-dynamic-uniform :buffer buffer :ptr ptr :memory memory))))
+			 (make-dynamic-uniform :buffer buffer :ptr ptr))))
 		   (defun ,dynamic-map-fun (sys buffer)
 		     (map-memory sys
-					(dynamic-uniform-memory buffer)
-					(cffi:foreign-slot-value (dynamic-uniform-ptr buffer) '(:struct ,name) ',atom-name)
-					(* ,dynamic-count (,dynaimic-alignment sys))))
+				 (vkbuffer-memory (dynamic-uniform-buffer buffer))
+				 (cffi:foreign-slot-value (dynamic-uniform-ptr buffer) '(:struct ,name) ',atom-name)
+				 (* ,dynamic-count (,dynaimic-alignment sys))))
 		   (defun ,dyanmic-update-fun (sys buffer index val)
 		     (setf (cffi:mem-ref (cffi:inc-pointer (cffi:foreign-slot-value (dynamic-uniform-ptr buffer) '(:struct ,name) ',atom-name)
 							   (* index (,dynaimic-alignment sys)))
@@ -287,38 +301,32 @@ export
 		   (defun ,dynamic-uniform-buffer-free-fun (sys buffer)
 		     (cffi:foreign-free (cffi:foreign-slot-value (dynamic-uniform-ptr buffer) '(:struct ,name) ',atom-name))
 		     (cffi:foreign-free (dynamic-uniform-ptr buffer))
-		     (destroy-buffer sys (dynamic-uniform-buffer buffer) (dynamic-uniform-memory buffer)))))
+		     (destroy-buffer sys (dynamic-uniform-buffer buffer)))))
 	      (let ((uniform-create-fun (we.u:create-symbol 'createu- name))
 		    (uniform-destroy-fun (we.u:create-symbol 'destryu- name))
 		    (uniform-buffer-update-fun (we.u:create-symbol 'updateu- name))
-		    (with-uniform (we.u:create-symbol 'withu- name)))
+		    ;;(with-uniform (we.u:create-symbol 'withu- name))
+		    )
 		`(progn
 		   (defun ,uniform-create-fun (sys count)
 		     (loop :for i :from 0 :below count
-			   :collect (multiple-value-bind (buffer memory)
-					(create-buffer sys (cffi:foreign-type-size '(:struct ,name)) :uniform-buffer '(:host-visible :host-coherent))
-				      (list buffer memory))))
+			   :collect (create-buffer sys (cffi:foreign-type-size '(:struct ,name)) :uniform-buffer '(:host-visible :host-coherent))))
 		   (defun ,uniform-destroy-fun (sys uniforms)
-		     (loop :for uniform :in uniforms
-			   :for buffer := (get-uniform-buffer uniform)
-			   :for memory := (get-uniform-memory uniform)
-			   :do (destroy-buffer sys buffer memory)))
+		     (mapcar (lambda (uniform)
+			  (destroy-buffer uniform))
+			uniforms))
 		   (defun ,uniform-buffer-update-fun (sys uniforms index val)
-		     (let ((memory (get-uniform-memory-by-index uniforms index)))
+		     (let ((memory (vkbuffer-memory (nth index uniforms))))
 		       (cffi:with-foreign-object (obj '(:struct ,name))
 			 (setf (cffi:mem-ref obj '(:struct ,name)) val)
 			 (map-memory sys memory obj (cffi:foreign-type-size '(:struct ,name))))))
-		   (defmacro ,with-uniform ((uniforms sys count) &body wbody)
-		     (let ((uniform-create-fun (we.u:create-symbol 'createu- ',name))
-			   (uniform-destroy-fun (we.u:create-symbol 'destryu- ',name)))
-		       `(let ((,uniforms (,uniform-create-fun ,sys ,count)))
-			  (progn ,@wbody)
-			  (,uniform-destroy-fun ,sys ,uniforms)))))))))))
-
-(defclass index-buffer ()
-  ((buffer :initarg :buffer :initform nil :accessor ibuffer)
-   (memory :initarg :memory :initform nil :accessor imemory)
-   (count  :initarg :count :initform nil :accessor icount)))
+		   ;; (defmacro ,with-uniform ((uniforms sys count) &body wbody)
+		   ;;   (let ((uniform-create-fun (we.u:create-symbol 'createu- ',name))
+		   ;; 	   (uniform-destroy-fun (we.u:create-symbol 'destryu- ',name)))
+		   ;;     `(let ((,uniforms (,uniform-create-fun ,sys ,count)))
+		   ;; 	  (progn ,@wbody)
+		   ;; 	  (,uniform-destroy-fun ,sys ,uniforms))))
+		   )))))))
 
 (defun create-index-buffer (sys data &optional (data-type :uint32)
 			    &aux
@@ -329,19 +337,19 @@ export
     (loop :for i :from 0 :below data-size
 	  :do (setf (cffi:mem-aref ptr data-type i)
 		    (svref data i)))
-    (multiple-value-bind (sbuffer smemory)
+    (multiple-value-bind (sbuffer)
 	(create-buffer sys size :transfer-src '(:host-visible :host-coherent))
-      (map-memory sys smemory ptr size)
-      (multiple-value-bind (buffer memory)
+      (map-memory sys (vkbuffer-memory sbuffer) ptr size)
+      (multiple-value-bind (buffer)
 	  (create-buffer sys size '(:transfer-dst :index-buffer) :device-local)
-	(copy-buffer sys sbuffer buffer size)
+	(copy-buffer sys (vkbuffer-buffer sbuffer) (vkbuffer-buffer buffer) size)
 	;; destroy stage buffer here
-	(destroy-buffer sys sbuffer smemory)
-	(make-instance 'index-buffer :buffer buffer :memory memory :count data-size)))))
+	(destroy-buffer sys sbuffer)
+	(make-ibuffer :buffer buffer :size data-size)))))
 
 (defun destroy-index-buffer (sys index-buffer)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
-  (destroy-buffer sys (ibuffer index-buffer) (imemory index-buffer)))
+  (destroy-buffer sys (ibuffer-buffer index-buffer)))
 
 (defmacro with-index-buffer ((index-buffer sys data &optional (data-type :uint32)) &body body)
   "usage to create and destroy index buffer"

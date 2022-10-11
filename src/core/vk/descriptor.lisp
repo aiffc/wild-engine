@@ -108,7 +108,7 @@ usage export
 					    (type :uniform-buffer-dynamic)
 					  &aux (device (get-device sys)))
 	 (let* ((buffer-info (vk:make-descriptor-buffer-info
-			      :buffer (dynamic-uniform-buffer buffer)
+			      :buffer (we.vk::vkbuffer-buffer (dynamic-uniform-buffer buffer))
 			      :offset offset
 			      :range range))
 		(write (vk:make-write-descriptor-set
