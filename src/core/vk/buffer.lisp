@@ -313,7 +313,7 @@ export
 			   :collect (create-buffer sys (cffi:foreign-type-size '(:struct ,name)) :uniform-buffer '(:host-visible :host-coherent))))
 		   (defun ,uniform-destroy-fun (sys uniforms)
 		     (mapcar (lambda (uniform)
-			  (destroy-buffer uniform))
+			  (destroy-buffer sys uniform))
 			uniforms))
 		   (defun ,uniform-buffer-update-fun (sys uniforms index val)
 		     (let ((memory (vkbuffer-memory (nth index uniforms))))

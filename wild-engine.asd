@@ -53,7 +53,9 @@
 					     (:file "buffer")
 					     (:file "texture")
 					     (:file "descriptor")
-					     (:file "init")))))
+					     (:file "init")))
+			       (:module "model"
+				:components ((:file "model")))))
 			     (:module "control"
 			      :components
 			      ((:file "ctrl")

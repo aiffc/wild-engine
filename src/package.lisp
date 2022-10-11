@@ -93,6 +93,14 @@
    #:deftexture
    #:destroy-image))
 
+(defpackage :we.model
+  (:use #:cl)
+  (:nicknames #:we.model)
+  (:local-nicknames
+   (:wild-engine.utils #:we.u)
+   (:wild-engine.debug #:we.dbg))
+  (:export))
+
 (defpackage :we.ctrl
   (:use #:cl)
   (:nicknames #:we.ctrl)
