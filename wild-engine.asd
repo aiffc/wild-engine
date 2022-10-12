@@ -71,6 +71,8 @@
 		:components ((:file "package")
 			     (:file "util")
 			     (:module "triangle"
-			      :components ((:file "triangle"))))))
+			      :components ((:file "triangle")))
+			     (:module "index"
+			      :components ((:file "index"))))))
   :perform (test-op (op c) (symbol-call :rove :run c)))
 
