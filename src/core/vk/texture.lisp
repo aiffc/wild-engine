@@ -53,15 +53,15 @@
 	 (mip-height height)
 	 (blit (vk:make-image-blit
 		:src-offsets (vector (vk:make-offset-3d :x 0 :y 0 :z 0)
-				     (vk:make-offset-3d :x mip-width :y mip-height :z 1))
+				     (vk:make-offset-3d :x (floor mip-width) :y (floor mip-height) :z 1))
 		:src-subresource (vk:make-image-subresource-layers
 				  :aspect-mask :color
 				  :mip-level 0
 				  :base-array-layer 0
 				  :layer-count 1)
 		:dst-offsets (vector (vk:make-offset-3d :x 0 :y 0 :z 0)
-				     (vk:make-offset-3d :x (if (> mip-width 1) (/ mip-width 2) 1)
-							:y (if (> mip-height 1) (/ mip-height 2) 1)
+				     (vk:make-offset-3d :x (if (> mip-width 1) (floor (/ mip-width 2)) 1)
+							:y (if (> mip-height 1) (floor (/ mip-height 2)) 1)
 							:z 1))
 		:dst-subresource (vk:make-image-subresource-layers
 				  :aspect-mask :color
@@ -87,8 +87,8 @@
 			(vk:mip-level (vk:src-subresource blit)) (- i 1)
 			(vk:dst-offsets blit)
 			(vector (vk:make-offset-3d :x 0 :y 0 :z 0)
-				(vk:make-offset-3d :x (if (> mip-width 1) (/ mip-width 2) 1)
-						   :y (if (> mip-height 1) (/ mip-height 2) 1)
+				(vk:make-offset-3d :x (if (> mip-width 1) (floor (/ mip-width 2)) 1)
+						   :y (if (> mip-height 1) (floor (/ mip-height 2)) 1)
 						   :z 1))
 			(vk:mip-level (vk:dst-subresource blit)) i)
 		  (vk:cmd-blit-image cmd
@@ -101,8 +101,8 @@
 			(vk:src-access-mask image-mem-barrie) :transfer-read
 			(vk:dst-access-mask image-mem-barrie) :shader-read)
 		  (vk:cmd-pipeline-barrier cmd nil nil (list image-mem-barrie) '(:transfer) '(:fragment-shader))
-		  (when (> mip-width 1) (setf mip-width (/ mip-width 2)))
-		  (when (> mip-height 1) (setf mip-height (/ mip-height 2)))))
+		  (when (> mip-width 1) (setf mip-width (floor (/ mip-width 2))))
+		  (when (> mip-height 1) (setf mip-height (floor (/ mip-height 2))))))
       (setf (vk:base-mip-level (vk:subresource-range image-mem-barrie)) (- mip-level 1)
 	    (vk:old-layout image-mem-barrie) :transfer-dst-optimal
 	    (vk:new-layout image-mem-barrie) :shader-read-only-optimal

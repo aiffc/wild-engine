@@ -10,3 +10,10 @@
 		 (:vert "-vert.spv")
 		 (:frag "-frag.spv")
 		 (t (error "unknow shader type")))))
+
+(defun make-texture-path (module-name texture-name)
+  (concatenate 'string
+	       (namestring (asdf:system-relative-pathname :wild-engine "test/"))
+	       module-name
+	       "/texture/"
+	       texture-name))

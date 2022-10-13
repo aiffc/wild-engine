@@ -303,7 +303,7 @@ export
 		     (cffi:foreign-free (dynamic-uniform-ptr buffer))
 		     (destroy-buffer sys (dynamic-uniform-buffer buffer)))))
 	      (let ((uniform-create-fun (we.u:create-symbol 'createu- name))
-		    (uniform-destroy-fun (we.u:create-symbol 'destryu- name))
+		    (uniform-destroy-fun (we.u:create-symbol 'destroyu- name))
 		    (uniform-buffer-update-fun (we.u:create-symbol 'updateu- name))
 		    ;;(with-uniform (we.u:create-symbol 'withu- name))
 		    )
