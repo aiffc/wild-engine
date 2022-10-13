@@ -73,6 +73,8 @@
 			     (:module "triangle"
 			      :components ((:file "triangle")))
 			     (:module "index"
-			      :components ((:file "index"))))))
+			      :components ((:file "index")))
+			     (:module "descriptor-sets"
+			      :components ((:file "descriptor-sets"))))))
   :perform (test-op (op c) (symbol-call :rove :run c)))
 
