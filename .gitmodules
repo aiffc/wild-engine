@@ -1,3 +1,6 @@
 [submodule "sdl-vulkan"]
 	path = sdl-vulkan
 	url = https://github.com/aiffc/sdl-vulkan
+[submodule "classimp"]
+	path = classimp
+	url = git@github.com:aiffc/classimp.git
