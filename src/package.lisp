@@ -99,7 +99,12 @@
   (:local-nicknames
    (:wild-engine.utils #:we.u)
    (:wild-engine.debug #:we.dbg))
-  (:export))
+  (:export
+   #:mesh-node
+   #:load-mesh
+   #:mesh-node-vertex-attribute-info
+   #:mesh-node-vertex-binding-info
+   #:createv-mesh-node))
 
 (defpackage :we.ctrl
   (:use #:cl)

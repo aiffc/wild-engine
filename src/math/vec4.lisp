@@ -31,7 +31,7 @@
 	  w (we.u:to-single-float (aref value 3)))))
 
 (defmethod cffi:expand-from-foreign (ptr (type cvec4))
-  `(cffi:with-foreign-slots ((x y z w) ptr (:struct vec4))
+  `(cffi:with-foreign-slots ((x y z w) ,ptr (:struct vec4))
      (v4:make (we.u:to-single-float x)
 	      (we.u:to-single-float y)
 	      (we.u:to-single-float z)

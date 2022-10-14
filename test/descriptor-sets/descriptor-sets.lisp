@@ -119,7 +119,7 @@
     (draw cmd :buffer (descriptor-set-handle-index instance) :index-p t)))
 
 (defun descriptor-set ()
-  (with-we-init (sys :w 800 :h 800 :x 0 :y 0 :title "index-buffer")
+  (with-we-init (sys :w 800 :h 800 :x 0 :y 0 :title "descriptor set")
     (let ((descriptor-set-instance (descriptor-sets-init sys)))
       ;; update uniform buffer binding 0
       (updateds-buffer-descriptor-set sys

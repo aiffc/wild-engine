@@ -1,6 +1,3 @@
-[submodule "aw-assimp"]
-	path = aw-assimp
-	url = https://github.com/borodust/aw-assimp
 [submodule "sdl-vulkan"]
 	path = sdl-vulkan
 	url = https://github.com/aiffc/sdl-vulkan

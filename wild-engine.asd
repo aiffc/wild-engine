@@ -11,7 +11,7 @@
 	       :opticl
 	       :alexandria
 	       :cl-soil
-	       :aw-assimp
+	       :classimp
 	       :closer-mop
 	       :defclass-std
 	       :alexandria)
@@ -75,6 +75,8 @@
 			     (:module "index"
 			      :components ((:file "index")))
 			     (:module "descriptor-sets"
-			      :components ((:file "descriptor-sets"))))))
+			      :components ((:file "descriptor-sets")))
+			     (:module "model"
+			      :components ((:file "model"))))))
   :perform (test-op (op c) (symbol-call :rove :run c)))
 
