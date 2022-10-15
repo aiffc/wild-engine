@@ -14,6 +14,7 @@
   (mt :mat4)
   (pt :mat4)
   (vt :mat4))
+
 (defparameter *uniform-angle* 0.0)
 (defparameter *uniform-data*
   (make-uniform :mt (m4:rotation-from-axis-angle (v3:make 1.0 0.0 0.0) *uniform-angle*)
@@ -68,7 +69,7 @@
   (multiple-value-bind (layout descriptor-layout)
       (makepl-model-pipeline-layout sys)
     (let ((pipeline (makeg-model-pipeline sys layout))
-	  (pool (makedp-descriptor-pool sys)))
+	  (pool (makedp-model-descriptor-pool sys)))
     (multiple-value-bind (vertex indices) (load-mesh *model*)
       (make-model-handle
        :pipeline pipeline
@@ -83,7 +84,7 @@
 
 (defun model-deinit (sys instance)
   (freeds-model-descriptor-set sys (model-handle-descriptor-pool instance) (model-handle-descriptor-set instance))
-  (destroydp-descriptor-pool sys (model-handle-descriptor-pool instance))
+  (destroydp-model-descriptor-pool sys (model-handle-descriptor-pool instance))
   (destroyg-model-pipeline sys (model-handle-pipeline instance))
   (destroypl-model-pipeline-layout sys (model-handle-pipeline-layout instance) (model-handle-descriptor-layout instance))
   (destroy-buffer sys (vbuffer-buffer (model-handle-vertex instance)))
@@ -102,7 +103,8 @@
     (draw cmd :buffer (model-handle-index instance) :index-p t)))
 
 (defun model ()
-  (with-we-init (sys :w 800 :h 800 :x 0 :y 0 :title "model loader")
+  (setf *ticks* 0)
+  (with-we-init (sys :w 800 :h 800 :x 0 :y 0 :title "model loader" :anti-aliasing t)
     (let ((model-instance (model-init sys)))
       (updateds-buffer-model-descriptor-set sys
 					    (model-handle-descriptor-set model-instance)

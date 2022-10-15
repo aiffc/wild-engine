@@ -1,7 +1,7 @@
 (defpackage :descriptor-sets
   (:use #:cl #:we.vk #:we.math #:we.ctrl #:test.util)
   (:export
-   #:index))
+   #:descriptor-sets))
 
 (in-package #:descriptor-sets)
 
@@ -118,7 +118,7 @@
     (bind-descriptor-sets cmd (descriptor-set-handle-pipeline-layout instance) (descriptor-set-handle-descriptor-set instance))              ;; bind descriptor buffer
     (draw cmd :buffer (descriptor-set-handle-index instance) :index-p t)))
 
-(defun descriptor-set ()
+(defun descriptor-sets ()
   (with-we-init (sys :w 800 :h 800 :x 0 :y 0 :title "descriptor set")
     (let ((descriptor-set-instance (descriptor-sets-init sys)))
       ;; update uniform buffer binding 0

@@ -77,6 +77,9 @@
 			     (:module "descriptor-sets"
 			      :components ((:file "descriptor-sets")))
 			     (:module "model"
-			      :components ((:file "model"))))))
+			      :components ((:file "model")))
+			     (:module "dynamic-uniform"
+			      :components ((:file "dynamic-uniform")))
+			     (:file "demo"))))
   :perform (test-op (op c) (symbol-call :rove :run c)))
 

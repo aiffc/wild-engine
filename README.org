@@ -1,7 +1,7 @@
 ** Usage
 #+BEGIN_SRC lisp
 (push #P"sdl2-vulkan-path" asdf:*central-registry*)
-(push #P"shaderc-path"  asdf:*central-registry*)
+(push #P"classimp"  asdf:*central-registry*)
 (push #P"wild-engine-path"  asdf:*central-registry*)
 (ql:quickload :wild-engine)
 #+END_SRC
@@ -9,7 +9,11 @@
 ** run test
 #+BEGIN_SRC lisp
 (ql:quickload :wild-engine/tests)
-(test)
+(we.demo:run :triangle)
+(we.demo:run :indices)
+(we.demo:run :descriptor-sets)
+(we.demo:run :model)
+(we.demo:run :dynamic-uniform)
 #+END_SRC
 
 *** run with debug
