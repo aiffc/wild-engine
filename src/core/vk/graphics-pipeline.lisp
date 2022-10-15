@@ -139,7 +139,7 @@
   "set pipeline dynamic state can not modify"
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (vk:make-pipeline-dynamic-state-create-info
-   :dynamic-states '(:viewport :scissor)))
+   :dynamic-states '(:viewport :scissor :line-width)))
 ;; ------------------------------------------------------------------------------
 (defun get-value (list key val
 		  &aux

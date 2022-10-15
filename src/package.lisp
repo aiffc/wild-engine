@@ -122,6 +122,7 @@
    #:bind-descriptor-sets
    #:set-viewport
    #:set-scissor
+   #:set-line-width
    #:set-vertex
    #:set-index
    #:draw))

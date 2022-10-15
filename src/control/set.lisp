@@ -40,6 +40,10 @@
 				   :extent (vk:make-extent-2d
 					    :width width :height height)))))
 
+(defun set-line-width (cmd &optional (line-width 1.0))
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (vk:cmd-set-line-width cmd line-width))
+
 (defun set-vertex (cmd buffer &key
 				(offset 0))
   (declare (optimize (speed 3) (debug 0) (safety 0))
