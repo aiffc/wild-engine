@@ -1,5 +1,67 @@
 (in-package #:we.model)
 
+(we.vk:defbuffer mesh-node (:usage :vertex)
+  (vertices :vec3)
+  (texture-coords :vec3)
+  (normals :vec3)
+  (colors :vec4))
+
+(defun vector3->vec3 (vec3)
+  (v3:make (aref vec3 0)
+	   (aref vec3 1)
+	   (aref vec3 2)))
+
+(defun color4->vec4 (color4)
+  (v4:make (aref color4 0)
+	   (aref color4 1)
+	   (aref color4 2)
+	   (aref color4 4)))
+
+(defun parse-mesh (mesh)
+  (let* ((faces (ai:faces mesh))
+	 (vertices (ai:vertices mesh))
+	 (text-coords (aref (ai:texture-coords mesh) 0))
+	 (normals (ai:normals mesh))
+	 (color (ai:colors mesh))
+	 (face-size (length faces))
+	 (ret (make-array (* 3 face-size) :adjustable t :fill-pointer 0)))
+    (loop :for i :from 0 :below face-size
+	  :for face :=  (aref faces i)
+	  :for face-index0 := (aref face 0)
+	  :for face-index1 := (aref face 1)
+	  :for face-index2 := (aref face 2)
+	  :for t0 := (aref text-coords face-index0)
+	  :for t1 := (aref text-coords face-index1)
+	  :for t2 := (aref text-coords face-index2)
+	  :finally (return-from parse-mesh (values ret face-size))
+	  :do (progn (vector-push-extend (make-mesh-node :vertices (vector3->vec3 (aref vertices face-index0))
+							 :texture-coords (v3:make (aref t0 0)
+										  (- 1.0 (aref t0 1))
+										  0.0)
+							 :normals (vector3->vec3 (aref normals face-index0))
+							 :colors (v4:make 1.0 0.0 0.0 0.0))
+					 ret)
+		     (vector-push-extend (make-mesh-node :vertices (vector3->vec3 (aref vertices face-index1))
+							 :texture-coords (v3:make (aref t1 0)
+										  (- 1.0 (aref t1 1))
+										  0.0)
+							 :normals (vector3->vec3 (aref normals face-index1))
+							 :colors (v4:make 0.0 1.0 0.0 0.0))
+					 ret)
+		     (vector-push-extend (make-mesh-node :vertices (vector3->vec3 (aref vertices face-index2))
+							 :texture-coords (v3:make (aref t2 0)
+										  (- 1.0 (aref t2 1))
+										  0.0)
+							 :normals (vector3->vec3 (aref normals face-index2))
+							 :colors (v4:make 0.0 0.0 1.0 0.0))
+					 ret)))))
+
+(defun load-mesh (path)
+  (let* ((model (ai:import-into-lisp path :processing-flags '(:ai-process-preset-target-realtime-quality))))
+    (let* ((ret (parse-mesh (aref (ai:meshes model) 0)))
+	   (ret-indices (eval `(vector ,@(loop :for i :from 0 :below (length ret) :collect i)))))
+      (values ret ret-indices))))
+
 ;; (cffi:define-foreign-library assimp
 ;;   (:darwin "libassimp.dylib")
 ;;   (:windows (:or "assimp.dll"
@@ -11,24 +73,6 @@
 
 ;; (cffi:use-foreign-library assimp)
 
-;; (we.vk:defbuffer mesh-node (:usage :vertex)
-;;   (vertices :vec3)
-;;   (texture-coords :vec3)
-;;   (normals :vec3)
-;;   (colors :vec4))
-
-;; (defun vector3->vec3 (vertices-ptr)
-;;   (cffi:with-foreign-slots ((%assimp:x
-;; 			     %assimp:y
-;; 			     %assimp:z) vertices-ptr (:struct %assimp:vector3d))
-;;     (v3:make %assimp:x %assimp:y %assimp:z)))
-
-;; (defun color4->vec4 (color-ptr)
-;;   (cffi:with-foreign-slots ((%assimp:r
-;; 			     %assimp:g
-;; 			     %assimp:b
-;; 			     %assimp:a) color-ptr (:struct %assimp:color4d))
-;;     (v4:make %assimp:r %assimp:g %assimp:b %assimp:a)))
 
 ;; (defun parse-face (face-ptr)
 ;;   (cffi:with-foreign-slots ((%assimp:num-indices
@@ -78,8 +122,8 @@
 ;;     (let ((mesh-data (make-array %assimp:num-vertices))
 ;; 	  (indices (make-array %assimp:num-vertices)))
 ;;       (dotimes (i %assimp:num-vertices (values mesh-data indices))
-;; 	(setf (svref indices i) i
-;; 	      (svref mesh-data i) (make-mesh-node :vertices
+;; 	(setf (aref indices i) i
+;; 	      (aref mesh-data i) (make-mesh-node :vertices
 ;; 						  (vector3->vec3 (cffi:mem-aptr %assimp:vertices '(:struct %assimp:vector3d) i))
 ;; 						  :texture-coords
 ;; 						  (vector3->vec3 (cffi:mem-aptr %assimp:texture-coords '(:struct %assimp:vector3d) i))

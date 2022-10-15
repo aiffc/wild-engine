@@ -243,7 +243,7 @@ export
 		 (cffi:with-foreign-object (ptr '(:struct ,name) data-size)
 		   (loop :for i :from 0 :below data-size
 			 :do (setf (cffi:mem-aref ptr '(:struct ,name) i)
-				   (svref data i)))
+				   (aref data i)))
 		   (multiple-value-bind (sbuffer)
 		       (create-buffer sys size :transfer-src '(:host-visible :host-coherent))
 		     (map-memory sys (vkbuffer-memory sbuffer) ptr size)
@@ -336,7 +336,7 @@ export
   (cffi:with-foreign-object (ptr data-type data-size)
     (loop :for i :from 0 :below data-size
 	  :do (setf (cffi:mem-aref ptr data-type i)
-		    (svref data i)))
+		    (aref data i)))
     (multiple-value-bind (sbuffer)
 	(create-buffer sys size :transfer-src '(:host-visible :host-coherent))
       (map-memory sys (vkbuffer-memory sbuffer) ptr size)

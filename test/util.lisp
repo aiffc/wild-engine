@@ -17,3 +17,16 @@
 	       module-name
 	       "/texture/"
 	       texture-name))
+
+(defun make-model-path (model-name &optional (format :obj))
+  (concatenate 'string
+	       (namestring (asdf:system-relative-pathname :wild-engine "test/"))
+	       "model/models/"
+	       model-name "/" model-name (case format
+					   (:obj ".obj"))))
+
+(defun make-model-texture-path (model-name)
+  (concatenate 'string
+	       (namestring (asdf:system-relative-pathname :wild-engine "test/"))
+	       "model/models/"
+	       model-name "/" model-name ".png"))
