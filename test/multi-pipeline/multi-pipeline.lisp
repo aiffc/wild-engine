@@ -1,5 +1,6 @@
 (defpackage :multi-pipeline
-  (:use #:cl #:we.vk #:we.math #:we.ctrl #:we.model #:test.util))
+  (:use #:cl #:we.vk #:we.math #:we.ctrl #:we.model #:test.util)
+  (:export #:multi-pipeline))
 
 (in-package #:multi-pipeline)
 
@@ -118,7 +119,7 @@
 
 (defun multi-pipeline ()
   (setf *ticks* 0)
-  (with-we-init (sys :w 800 :h 800 :x 0 :y 0 :title "model loader")
+  (with-we-init (sys :w 800 :h 800 :x 0 :y 0 :title "multiple pipeline")
     (let ((instance (multi-pipeline-init sys)))
       (updateds-buffer-multi-pipeline-descriptor-set sys
 						     (multi-pipeline-handle-descriptor-set instance)

@@ -16,7 +16,7 @@
   (pt :mat4)   ;; project transfer
   (vt :mat4))  ;; view transfer
 
-(defbuffer duniform (:usage :uniform :dynamic-p t :dynamic-count 25) 
+(defbuffer duniform (:usage :uniform :dynamic-p t :count 25) 
   (mt :mat4))  ;; model transfer
 
 (defparameter *vertex-data*

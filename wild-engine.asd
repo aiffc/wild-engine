@@ -80,6 +80,10 @@
 			      :components ((:file "model")))
 			     (:module "dynamic-uniform"
 			      :components ((:file "dynamic-uniform")))
+			     (:module "multi-pipeline"
+			      :components ((:file "multi-pipeline")))
+			     (:module "push-constant"
+			      :components ((:file "push-constant")))
 			     (:file "demo"))))
   :perform (test-op (op c) (symbol-call :rove :run c)))
 

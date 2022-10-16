@@ -164,8 +164,10 @@ usage ->
 	 (frag-shader (second (assoc :fragment body)))
 	 ;; vertex input stage
 	 (vertex-info (second (assoc :vertex-stage body)))
-	 (vbind-info-fun (we.u:create-symbol vertex-info '-vertex-binding-info))
-	 (vattr-info-fun (we.u:create-symbol vertex-info '-vertex-attribute-info))
+	 (vbind-info-fun (when vertex-info
+			     (we.u:create-symbol vertex-info '-vertex-binding-info)))
+	 (vattr-info-fun (when vertex-info
+			   (we.u:create-symbol vertex-info '-vertex-attribute-info)))
 	 ;; input assembly stage
 	 (topology (get-value body :topology :triangle-list))
 	 ;; rasterization stage
@@ -181,6 +183,7 @@ usage ->
     `(progn
        (eval-when (:compile-toplevel :load-toplevel :execute))
        (defun ,make-fun (sys layout &optional (input-rate :vertex))
+	 ,(unless vertex-info `(declare (ignore input-rate)))
 	 (let* ((shader-stage (list (create-shader-stage sys ,vert-shader :vertex)
 				    (create-shader-stage sys ,frag-shader :fragment)))
 		(create-info (vk:make-graphics-pipeline-create-info
@@ -188,8 +191,10 @@ usage ->
 			      :base-pipeline-index 0
 			      :stages shader-stage
 			      :vertex-input-state (vk:make-pipeline-vertex-input-state-create-info
-						   :vertex-binding-descriptions (,vbind-info-fun input-rate)
-						   :vertex-attribute-descriptions (,vattr-info-fun))
+						   :vertex-binding-descriptions ,(when vertex-info
+										   `(,vbind-info-fun input-rate))
+						   :vertex-attribute-descriptions ,(when vertex-info
+										     `(,vattr-info-fun)))
 			      :input-assembly-state (input-assembly-state ,topology)
 			      :tessellation-state (tessellation-state)
 			      :viewport-state (viewport-state)

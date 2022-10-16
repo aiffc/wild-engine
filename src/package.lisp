@@ -125,4 +125,5 @@
    #:set-line-width
    #:set-vertex
    #:set-index
+   #:set-constant
    #:draw))

@@ -152,7 +152,12 @@
   (ptr nil))
 
 
-(defmacro defbuffer (name (&key (usage :uniform) (binding 0) (dynamic-p nil) (dynamic-count 1)) &body body)
+(defmacro defbuffer (name (&key
+			     (usage :uniform)
+			     (binding 0)
+			     (dynamic-p nil)
+			     (count 1))      ;; for array
+		     &body body)
   "
 usage ->
   (defbuffer name (:usage :vertex :binding 0)
@@ -189,13 +194,19 @@ export
 	 (struct-initarg (mapcar #'(lambda (sym)
 			       (alexandria:make-keyword (format nil "~a" sym)))
 			    struct-atoms))
-	 (make-body (we.u:gen-setf struct-initarg struct-atoms))) ;; class make function
+	 (make-body (we.u:gen-setf struct-initarg struct-atoms))      ;; class make function
+	 (size-fun (we.u:create-symbol name '-size))
+	 (slot-ptr-fun (we.u:create-symbol 'slot-ptr- name)))
     `(progn
        (eval-when (:compile-toplevel :load-toplevel :execute))
        (cffi:defcstruct (,name :class ,struct-cname)
 	 ,@struct-body)
        (defclass-std:defclass/std ,name ()
 	 (,struct-atoms))
+       (defun ,size-fun ()
+	 (cffi:foreign-type-size '(:struct ,name)))
+       (defun ,slot-ptr-fun (ptr index)
+	 (cffi:mem-aptr ptr '(:struct ,name) index))
        ,(unless dynamic-p
 	  ;; do not support for tranlate dynamic uniform buffer
 	  `(progn
@@ -208,13 +219,23 @@ export
 	       (cffi:with-foreign-slots (,struct-atoms ptr (:struct ,name))
 		 (we.u:with-cffi-alloc (,@alloc-body)
 		   (setf ,@alloc-set-body))))))
+       ,(when (eql usage :push-constant)
+	  (let ((create-fun (we.u:create-symbol 'createc- name))
+		(destroy-fun (we.u:create-symbol 'destroyc- name)))
+	    `(progn
+	       (defun ,create-fun (data)
+		 (let ((ptr (cffi:foreign-alloc '(:struct ,name) :count ,count)))
+		   (loop :for i :from 0 :below ,count
+			 :do (setf (cffi:mem-aref ptr '(:struct ,name) i)
+				   (aref data i)))
+		   ptr))
+	       (defun ,destroy-fun (ptr)
+		 (cffi:foreign-free ptr)))))
        ,(when (eql usage :vertex)
 	  ;; vertex infos
 	  (let ((vbind-info-fun (we.u:create-symbol name '-vertex-binding-info))
 		(vattr-info-fun (we.u:create-symbol name '-vertex-attribute-info))
-		(vdata-fun (we.u:create-symbol 'createv- name))
-		;;(vdata-macro (we.u:create-symbol 'withv- name))
-		)
+		(vdata-fun (we.u:create-symbol 'createv- name)))
 	    `(progn
 	       (defun ,vbind-info-fun (&optional (input-rate :vertex))
 		 (list (vk:make-vertex-input-binding-description
@@ -252,14 +273,7 @@ export
 		       (copy-buffer sys (vkbuffer-buffer sbuffer) (vkbuffer-buffer buffer) size)
 		       ;; destroy stage buffer here
 		       (destroy-buffer sys sbuffer)
-		       (make-vbuffer :buffer buffer :size size)))))
-	       ;; (defmacro ,vdata-macro ((buffer sys data) &body wbody)
-	       ;; 	 (let ((vdata-fun (we.u:create-symbol 'createv- ',name))
-	       ;; 	       (memory (gensym)))
-	       ;; 	   `(multiple-value-bind (,buffer ,memory ,size) (,vdata-fun ,sys ,data)
-	       ;; 	      ,@wbody
-	       ;; 	      (destroy-buffer ,sys ,buffer ,memory))))
-	       )))
+		       (make-vbuffer :buffer buffer :size size))))))))
        ,(when (eql usage :uniform)
 	  ;; todo
 	  (if dynamic-p
@@ -284,15 +298,15 @@ export
 		   (defun ,dynamic-uniform-buffer-alloc-fun (sys)
 		     (let ((ptr (cffi:foreign-alloc '(:struct ,name))))
 		       (setf (cffi:foreign-slot-value ptr '(:struct ,name) ',atom-name)
-			     (cffi::%foreign-alloc (* ,dynamic-count (,dynaimic-alignment sys))))
+			     (cffi-sys:%foreign-alloc (* ,count (,dynaimic-alignment sys))))
 		       (multiple-value-bind (buffer)
-			   (create-buffer sys (* ,dynamic-count (,dynaimic-alignment sys)) :uniform-buffer :host-visible)
+			   (create-buffer sys (* ,count (,dynaimic-alignment sys)) :uniform-buffer :host-visible)
 			 (make-dynamic-uniform :buffer buffer :ptr ptr))))
 		   (defun ,dynamic-map-fun (sys buffer)
 		     (map-memory sys
 				 (vkbuffer-memory (dynamic-uniform-buffer buffer))
 				 (cffi:foreign-slot-value (dynamic-uniform-ptr buffer) '(:struct ,name) ',atom-name)
-				 (* ,dynamic-count (,dynaimic-alignment sys))))
+				 (* ,count (,dynaimic-alignment sys))))
 		   (defun ,dyanmic-update-fun (sys buffer index val)
 		     (setf (cffi:mem-ref (cffi:inc-pointer (cffi:foreign-slot-value (dynamic-uniform-ptr buffer) '(:struct ,name) ',atom-name)
 							   (* index (,dynaimic-alignment sys)))
@@ -304,9 +318,7 @@ export
 		     (destroy-buffer sys (dynamic-uniform-buffer buffer)))))
 	      (let ((uniform-create-fun (we.u:create-symbol 'createu- name))
 		    (uniform-destroy-fun (we.u:create-symbol 'destroyu- name))
-		    (uniform-buffer-update-fun (we.u:create-symbol 'updateu- name))
-		    ;;(with-uniform (we.u:create-symbol 'withu- name))
-		    )
+		    (uniform-buffer-update-fun (we.u:create-symbol 'updateu- name)))
 		`(progn
 		   (defun ,uniform-create-fun (sys count)
 		     (loop :for i :from 0 :below count
@@ -319,14 +331,7 @@ export
 		     (let ((memory (vkbuffer-memory (nth index uniforms))))
 		       (cffi:with-foreign-object (obj '(:struct ,name))
 			 (setf (cffi:mem-ref obj '(:struct ,name)) val)
-			 (map-memory sys memory obj (cffi:foreign-type-size '(:struct ,name))))))
-		   ;; (defmacro ,with-uniform ((uniforms sys count) &body wbody)
-		   ;;   (let ((uniform-create-fun (we.u:create-symbol 'createu- ',name))
-		   ;; 	   (uniform-destroy-fun (we.u:create-symbol 'destryu- ',name)))
-		   ;;     `(let ((,uniforms (,uniform-create-fun ,sys ,count)))
-		   ;; 	  (progn ,@wbody)
-		   ;; 	  (,uniform-destroy-fun ,sys ,uniforms))))
-		   )))))))
+			 (map-memory sys memory obj (cffi:foreign-type-size '(:struct ,name)))))))))))))
 
 (defun create-index-buffer (sys data &optional (data-type :uint32)
 			    &aux

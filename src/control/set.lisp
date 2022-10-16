@@ -55,6 +55,10 @@
 	   (type integer offset))
   (vk:cmd-bind-index-buffer cmd (we.vk::vkbuffer-buffer (we.vk:ibuffer-buffer buffer)) offset :uint32))
 
+(defun set-constant (cmd pipe-layout type-size ptr &optional (flag '(:vertex)))
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (vk:cmd-push-constants cmd pipe-layout flag 0 type-size ptr))
+
 (defun draw (cmd &key
 		   (buffer nil)
 		   (index-p nil))
