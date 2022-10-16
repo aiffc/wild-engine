@@ -20,16 +20,16 @@
 	  (make-vertex :pos #(0.2 0.2 0.0))
 	  (make-vertex :pos #(-0.2 0.2 0.0))))
 
-(defparameter *sphere-data*
+(defparameter *sphere-data*  ;; build constant data
   (eval `(vector ,@(loop :for i :from 0 :below 16
 			 :for rad := (rtg-math:radians (/ (* i 360.0) 16))
-			 :collect (make-sphere
+			 :collect (make-sphere                ;; triangle position
 				   :pos (vector
 					 (sin rad)
 					 (cos rad)
 					 0.0
 					 1.0)
-				   :color (vector
+				   :color (vector             ;; random color
 					   (random 1.0)
 					   (random 1.0)
 					   (random 1.0)
@@ -37,9 +37,9 @@
 
 (defpipeline-layout push-constant-layout ()
   ()
-  ((:flag :vertex
+  ((:flag :vertex                                             ;; push constant info
     :offset 0
-    :size (cffi:foreign-type-size '(:struct sphere)))))
+    :size (sphere-size))))
 
 (defgpipeline push-constant-pipeline ()
   (:vertex *vert*)
@@ -55,7 +55,7 @@
     (make-push-constant-handle
      :pipeline pipeline
      :pipeline-layout layout
-     :spheres (createc-sphere *sphere-data*)
+     :spheres (createc-sphere *sphere-data*)                 ;; create sphere data
      :vertex (createv-vertex sys *veretx-data*))))
 
 (defun spheres-deinit (sys instance)
@@ -65,14 +65,14 @@
   (destroyg-push-constant-pipeline sys (push-constant-handle-pipeline instance)))
 
 (defun draw-spheres (sys instance)
-  (with-gcmd (cmd sys 0 0 800 800 #(1.0 1.0 1.0 1.0)) ;; record command buffer
+  (with-gcmd (cmd sys 0 0 800 800 #(1.0 1.0 1.0 1.0))
     (bind-gpipeline cmd (push-constant-handle-pipeline instance))
     (set-vertex cmd (push-constant-handle-vertex instance))
     (set-viewport cmd :width (* 1.0 800.0) :height (* 1.0 800.0))
     (set-scissor cmd :width 800 :height 800)
     (loop :for i :from 0 :below 16
 	  :do (progn
-		(set-constant cmd (push-constant-handle-pipeline-layout instance) (sphere-size) (slot-ptr-sphere (push-constant-handle-spheres instance) i))
+		(set-constant cmd (push-constant-handle-pipeline-layout instance) (sphere-size) (slot-ptr-sphere (push-constant-handle-spheres instance) i))   ;; push constant data
 		(draw cmd :buffer (push-constant-handle-vertex instance))))))
 
 (defun push-constant ()
