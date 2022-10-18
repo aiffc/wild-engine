@@ -84,6 +84,8 @@
 			      :components ((:file "multi-pipeline")))
 			     (:module "push-constant"
 			      :components ((:file "push-constant")))
+			     (:module "specialization-constants"
+			      :components ((:file "specialization-constants")))
 			     (:file "demo"))))
   :perform (test-op (op c) (symbol-call :rove :run c)))
 

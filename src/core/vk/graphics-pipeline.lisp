@@ -19,13 +19,16 @@
     (we.dbg:msg :app "create shader module ~a in device ~a~%" module device)
     module))
 
-(defun create-shader-stage (sys path stage
+(defun create-shader-stage (sys path stage entry-info ptr
 			    &aux
 			      (module (create-shader-module sys path)))
+  (when entry-info
+    (setf (vk:data entry-info) ptr))
   (vk:make-pipeline-shader-stage-create-info
    :name "main"
    :stage stage
-   :module module))
+   :module module
+   :specialization-info entry-info))
 
 (defun destroy-shader-stages (sys shaders
 			      &aux
@@ -182,10 +185,15 @@ usage ->
 	 (with-mac (we.u:create-symbol 'withg- name)))
     `(progn
        (eval-when (:compile-toplevel :load-toplevel :execute))
-       (defun ,make-fun (sys layout &optional (input-rate :vertex))
+       (defun ,make-fun (sys layout &key
+				      (input-rate :vertex)
+				      (vert-ptr nil)
+				      (vert-ety nil)
+				      (frag-ptr nil)
+				      (frag-ety nil))
 	 ,(unless vertex-info `(declare (ignore input-rate)))
-	 (let* ((shader-stage (list (create-shader-stage sys ,vert-shader :vertex)
-				    (create-shader-stage sys ,frag-shader :fragment)))
+	 (let* ((shader-stage (list (create-shader-stage sys ,vert-shader :vertex vert-ety vert-ptr)
+				    (create-shader-stage sys ,frag-shader :fragment frag-ety frag-ptr)))
 		(create-info (vk:make-graphics-pipeline-create-info
 			      :base-pipeline-handle nil
 			      :base-pipeline-index 0

@@ -182,6 +182,9 @@ export
   destroydu-*name*
   mapdu-*name*
   updatedu-*name*
+:usage push constant export 
+  createc-*name*
+  destroyc-*name
 "
   (let* ((struct-cname (we.u:create-symbol 'c- name))                 ;; struct c name
 	 (struct-atoms (get-struct-atoms body))                       ;; struct member names
@@ -228,6 +231,30 @@ export
 		   (loop :for i :from 0 :below ,count
 			 :do (setf (cffi:mem-aref ptr '(:struct ,name) i)
 				   (aref data i)))
+		   ptr))
+	       (defun ,destroy-fun (ptr)
+		 (cffi:foreign-free ptr)))))
+       ,(when (eql usage :specialization-data)
+	  (let ((create-fun (we.u:create-symbol 'creates- name))
+		(destroy-fun (we.u:create-symbol 'destroys- name))
+		(entry-fun (we.u:create-symbol name '-entry)))
+	    `(progn
+	       (defun ,entry-fun ()
+		 (vk:make-specialization-info
+		  :map-entries (list ,@(loop :for i :from 0 :below (length body)
+					     :for bd := (nth i body)
+					     :for sname := (first bd)
+					     :for stype := (second bd)
+					     :collect `(vk:make-specialization-map-entry
+							:constant-id ,i
+							:size ,(get-atom-size bd)
+							:offset (cffi:foreign-slot-offset '(:struct ,name)
+											  ',sname))))
+		  :data-size (,size-fun)))
+	       (defun ,create-fun (data)
+		 (let ((ptr (cffi:foreign-alloc '(:struct ,name))))
+		   (setf (cffi:mem-ref ptr '(:struct ,name))
+			 data)
 		   ptr))
 	       (defun ,destroy-fun (ptr)
 		 (cffi:foreign-free ptr)))))
